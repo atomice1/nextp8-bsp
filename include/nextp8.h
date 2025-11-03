@@ -38,6 +38,35 @@
 #define _DEBUG_REG_HI       (_MEMIO_BASE + 0x62)
 #define _DEBUG_REG_LO       (_MEMIO_BASE + 0x64)
 
+#define _P8AUDIO_BASE          0x800100
+#define _P8AUDIO_VERSION       (_P8AUDIO_BASE + 0x0)
+#define _P8AUDIO_CTRL          (_P8AUDIO_BASE + 0x2)
+#define _P8AUDIO_SFX_BASE_HI   (_P8AUDIO_BASE + 0x4)
+#define _P8AUDIO_SFX_BASE_LO   (_P8AUDIO_BASE + 0x6)
+#define _P8AUDIO_MUSIC_BASE_HI (_P8AUDIO_BASE + 0x8)
+#define _P8AUDIO_MUSIC_BASE_LO (_P8AUDIO_BASE + 0xa)
+#define _P8AUDIO_HWFX40        (_P8AUDIO_BASE + 0x0c)
+#define _P8AUDIO_HWFX41        (_P8AUDIO_BASE + 0x0d)
+#define _P8AUDIO_HWFX42        (_P8AUDIO_BASE + 0x0e)
+#define _P8AUDIO_HWFX43        (_P8AUDIO_BASE + 0x0f)
+#define _P8AUDIO_NOTE_ATK_TIME (_P8AUDIO_BASE + 0x10)
+#define _P8AUDIO_NOTE_REL_TIME (_P8AUDIO_BASE + 0x12)
+#define _P8AUDIO_SFX_CMD       (_P8AUDIO_BASE + 0x14)
+#define _P8AUDIO_SFX_LEN       (_P8AUDIO_BASE + 0x16)
+#define _P8AUDIO_MUSIC_CMD     (_P8AUDIO_BASE + 0x18)
+#define _P8AUDIO_MUSIC_FADE    (_P8AUDIO_BASE + 0x1a)
+#define _P8AUDIO_STAT46        (_P8AUDIO_BASE + 0x1c)
+#define _P8AUDIO_STAT47        (_P8AUDIO_BASE + 0x1e)
+#define _P8AUDIO_STAT48        (_P8AUDIO_BASE + 0x20)
+#define _P8AUDIO_STAT49        (_P8AUDIO_BASE + 0x22)
+#define _P8AUDIO_STAT50        (_P8AUDIO_BASE + 0x24)
+#define _P8AUDIO_STAT51        (_P8AUDIO_BASE + 0x26)
+#define _P8AUDIO_STAT52        (_P8AUDIO_BASE + 0x28)
+#define _P8AUDIO_STAT53        (_P8AUDIO_BASE + 0x2a)
+#define _P8AUDIO_STAT54        (_P8AUDIO_BASE + 0x2c)
+#define _P8AUDIO_STAT55        (_P8AUDIO_BASE + 0x2e)
+#define _P8AUDIO_STAT56        (_P8AUDIO_BASE + 0x30)
+
 #define _DA_MEMORY_BASE     0xc0c000
 #define _DA_MEMORY_SIZE     16384
 #define _DA_CLKS_PER_SECOND 11000000
