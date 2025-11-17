@@ -14,7 +14,7 @@ MEMORY
 }
 
 /* Place the stack at the end of memory, unless specified otherwise. */
-PROVIDE (__stack = 2048K);
+PROVIDE (__stack = 4096K);
 
 SECTIONS
 {

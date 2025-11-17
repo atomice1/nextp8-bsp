@@ -7,11 +7,11 @@ __DYNAMIC  =  0;
 
 MEMORY
 {
-  ram (rwx) : ORIGIN = 128K, LENGTH = 1920K
+  ram (rwx) : ORIGIN = 128K, LENGTH = 3968K
 }
 
 /* Place the stack at the end of memory, unless specified otherwise. */
-PROVIDE (__stack = 2048K);
+PROVIDE (__stack = 4096K);
 
 SECTIONS
 {
