@@ -12,11 +12,10 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
+#include <sys/stat.h>
+#include "io.h"
 
-#include <stdint.h>
-
-extern uint8_t __font[96][5][2];
-
-#endif
+int mkdir(const char *pathname, mode_t mode)
+{
+  return _fatfs_mkdir(pathname, mode);
+}

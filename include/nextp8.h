@@ -15,6 +15,9 @@
 #ifndef NEXTP8_H
 #define NEXTP8_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 #define _MEMIO_BASE         0x800000
 #define _SDSPI_WRITE_ENABLE (_MEMIO_BASE + 0x0)
 #define _SDSPI_DIVIDER      (_MEMIO_BASE + 0x2)
@@ -26,6 +29,10 @@
 #define _VFRONT             (_MEMIO_BASE + 0xe)
 #define _VFRONTREQ          (_MEMIO_BASE + 0xe)
 #define _PARAMS             (_MEMIO_BASE + 0x12)
+#define _BUILD_TIMESTAMP_HI (_MEMIO_BASE + 0x14)
+#define _BUILD_TIMESTAMP_LO (_MEMIO_BASE + 0x16)
+#define _HW_VERSION_HI      (_MEMIO_BASE + 0x18)
+#define _HW_VERSION_LO      (_MEMIO_BASE + 0x1a)
 #define _UTIMER_1MHZ_HI     (_MEMIO_BASE + 0x2E)
 #define _UTIMER_1MHZ_LO     (_MEMIO_BASE + 0x30)
 #define _UTIMER_1KHZ_HI     (_MEMIO_BASE + 0x32)
@@ -80,11 +87,21 @@
 #define _PALETTE_SIZE       16
 #define _SCREEN_WIDTH       128
 #define _SCREEN_HEIGHT      128
+#define _FONT_CHAR_WIDTH    4
+#define _FONT_CHAR_HEIGHT   5
+#define _FONT_LINE_HEIGHT   (_FONT_CHAR_HEIGHT + 1)
 
 #define _TUBE_STDOUT        0xfffffe
 #define _TUBE_STDERR        0xffffff
 
-#define _CONFIG_BASE        0x7c000
+#define _CONFIG_BASE_ROM    0x7c000
+#define _CONFIG_BASE_RAM    0x3ffc00
+#ifdef ROM
+#define _CONFIG_BASE        _CONFIG_BASE_ROM
+#else
+#define _CONFIG_BASE        _CONFIG_BASE_RAM
+#endif
+#define _LOADER_DATA        (_CONFIG_BASE_RAM + 256)
 
 enum {
     _BLACK = 0,
@@ -105,13 +122,26 @@ enum {
     _LIGHT_PEACH
 };
 
+struct _loader_data {
+    uint32_t loader_version;
+    uint32_t loader_timestamp;
+    uintptr_t entry_point;
+};
+
+extern uint32_t _bsp_timestamp;
+extern uint32_t _bsp_version;
+#ifndef ROM
+extern const struct _loader_data _loader_data;
+#endif
+
 extern void _set_postcode(int postcode);
 extern void _clear_screen(int colour_index);
 extern void _copy_front_to_back(void);
+extern void _format_version(char *out, size_t size, const char *prefix, uint32_t version, uint32_t timestamp);
 extern void _display_string(int x, int y, const char *s);
 extern void _display_string_centered(int x, int y, const char *s);
-extern void _display_error(const char *message);
 extern void _flip(void);
+extern uint32_t get_bsp_version(void);
 extern void __attribute__ ((noreturn)) _halt(void);
 extern void __attribute__ ((noreturn)) _warm_reset(void);
 #ifdef ROM
@@ -120,6 +150,7 @@ extern void _recoverable_error(const char *message);
 #else
 extern void __attribute__ ((noreturn)) _fatal_error(const char *format, ...);
 extern void _recoverable_error(const char *format, ...);
+extern void _show_message(const char *format, ...);
 #endif
 extern void _wait_for_any_key(void);
 

@@ -12,11 +12,15 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
-
+#include <stddef.h>
 #include <stdint.h>
+#include "timestamp_macros.h"
+#include "version_macros.h"
 
-extern uint8_t __font[96][5][2];
+#define API_VERSION   0
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 1
+#define PATCH_VERSION 0
 
-#endif
+uint32_t _bsp_version = _MAKE_VERSION(API_VERSION, MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
+uint32_t _bsp_timestamp = _TIMESTAMP;

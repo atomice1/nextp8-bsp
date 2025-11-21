@@ -11,7 +11,8 @@ MEMORY
 }
 
 /* Place the stack at the end of memory, unless specified otherwise. */
-PROVIDE (__stack = 4096K);
+PROVIDE (__stack = 4095K);
+PROVIDE (_loader_data = __stack + 256);
 
 SECTIONS
 {

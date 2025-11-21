@@ -19,6 +19,12 @@
 #include <unistd.h>
 #include "nextp8.h"
 
+enum message_type {
+  FATAL_ERROR,
+  RECOVERABLE_ERROR,
+  MESSAGE
+};
+
 static void write_tube(const char *message)
 {
   char *p =  (char *)_TUBE_STDERR;
@@ -26,6 +32,27 @@ static void write_tube(const char *message)
   while ((c = *message++))
     *p = c;
   *p = '\n';
+}
+
+static void _show_message_common(enum message_type message_type, const char *message)
+{
+  int vfront = *(uint8_t *)_VFRONT;
+  int vback = 1 - vfront;
+  _clear_screen(message_type == MESSAGE ? _DARK_BLUE : _RED);
+  _display_string_centered(_SCREEN_WIDTH / 2,
+                           _SCREEN_HEIGHT / 2,
+                           message);
+  write_tube(message);
+  usleep(1000000);
+  _display_string_centered(_SCREEN_WIDTH / 2,
+                           _SCREEN_HEIGHT - _FONT_LINE_HEIGHT * 2,
+                           (message_type == FATAL_ERROR) ?
+                           "Press any key to reset..." :
+                           "Press any key to continue...");
+  _flip();
+  _wait_for_any_key();
+  if (message_type == FATAL_ERROR)
+    _warm_reset();
 }
 
 #ifdef ROM
@@ -37,27 +64,11 @@ void _recoverable_error(const char *format, ...)
 #ifndef ROM
   va_list ap;
   va_start(ap, format);
-  char message[200];
-#endif
-  int vfront = *(uint8_t *)_VFRONT;
-  int vback = 1 - vfront;
-  _clear_screen(_RED);
-#ifndef ROM
-   vsnprintf(message, sizeof(message), format, ap);
-#endif
-  _display_string_centered(_SCREEN_WIDTH / 2,
-                           _SCREEN_HEIGHT / 2,
-                           message);
-  write_tube(message);
-  usleep(1000000);
-  _display_string_centered(_SCREEN_WIDTH / 2,
-                           _SCREEN_HEIGHT * 3 / 4,
-                           "Press any key to continue...");
-  _flip();
-  _wait_for_any_key();
-#ifndef ROM
+  char message[256];
+  vsnprintf(message, sizeof(message), format, ap);
   va_end(ap);
 #endif
+  _show_message_common(RECOVERABLE_ERROR, message);
 }
 
 #ifdef ROM
@@ -69,24 +80,21 @@ void __attribute__ ((noreturn)) _fatal_error(const char *format, ...)
 #ifndef ROM
   va_list ap;
   va_start(ap, format);
-  char message[200];
-#endif
-  _clear_screen(_RED);
-#ifndef ROM
+  char message[256];
   vsnprintf(message, sizeof(message), format, ap);
-#endif
-  _display_string_centered(_SCREEN_WIDTH / 2,
-                           _SCREEN_HEIGHT / 2,
-                           message);
-  write_tube(message);
-  usleep(1000000);
-  _display_string_centered(_SCREEN_WIDTH / 2,
-                           _SCREEN_HEIGHT * 3 / 4,
-                           "Press any key to reset...");
-  _flip();
-  _wait_for_any_key();
-  _warm_reset();
-#ifndef ROM
   va_end(ap);
 #endif
+  _show_message_common(FATAL_ERROR, message);
 }
+
+#ifndef ROM
+void _show_message(const char *format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  char message[256];
+  va_end(ap);
+  vsnprintf(message, sizeof(message), format, ap);
+  _show_message_common(MESSAGE, message);
+}
+#endif

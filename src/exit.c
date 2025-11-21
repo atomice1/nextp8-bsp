@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2025 Chris January
+ * exit.c --
+ *
+ * Copyright (c) 2025 Chris January
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided
@@ -12,11 +14,31 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
+#include <stdlib.h>
+#include "nextp8.h"
 
-#include <stdint.h>
+char *last_error = NULL;
 
-extern uint8_t __font[96][5][2];
+extern void __reset (void);
 
-#endif
+/*
+ * _exit -- Exit from the application.
+ */
+
+void __attribute__ ((noreturn)) _exit (int code)
+{
+  if (code != 0)
+    {
+      if (last_error)
+        _fatal_error(last_error);
+      else
+        _fatal_error("fatal error");
+    }
+  else
+    {
+      while (1)
+        {
+          _warm_reset();
+        }
+    }
+}

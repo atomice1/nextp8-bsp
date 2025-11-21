@@ -18,6 +18,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nextp8.h"
+#include "version_macros.h"
+
+#define HW_API_VERSION     0
+#define LOADER_API_VERSION 0
 
 extern const int __interrupt_vector[];
 extern void __reset (void);
@@ -91,6 +95,13 @@ void __attribute__ ((weak)) hardware_init_hook (void)
   __asm__ __volatile__ ("movec.l %0,%/vbr" :: "r" (__interrupt_vector));
 #endif
 
+  /* Check for hardware compatibility */
+  uint32_t hw_version = *(uint32_t *)_HW_VERSION_HI;
+  if (_EXTRACT_API(hw_version) != HW_API_VERSION) {
+    _clear_screen(_RED); _flip();
+    _fatal_error("Incompatible hardware version");
+  }
+
   /* Set boot screen to dark blue. */
   _clear_screen(_DARK_BLUE);
   _flip();
@@ -103,4 +114,12 @@ void __attribute__ ((weak)) software_init_hook (void)
     unsigned ps2_mode = *(volatile uint8_t *)(_CONFIG_BASE + 3);
     uint16_t params = (ps2_mode << 0);
     *(volatile uint16_t *)_PARAMS = params;
+
+#ifndef ROM
+  struct _loader_data *loader_data = (struct _loader_data *) _LOADER_DATA;
+  if (_EXTRACT_API(loader_data->loader_version) != LOADER_API_VERSION) {
+    _clear_screen(_RED); _flip();
+    _fatal_error("Incompatible loader version");
+  }
+#endif
 }

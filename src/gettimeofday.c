@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2025 Chris January
+ * io-gettimeofday.c --
+ *
+ * Copyright (c) 2006 CodeSourcery Inc
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided
@@ -12,11 +14,22 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
-
 #include <stdint.h>
+#include <sys/time.h>
+#include "nextp8.h"
 
-extern uint8_t __font[96][5][2];
+/*
+ * gettimeofday -- get the current time
+ * input parameters:
+ *   0 : timeval ptr
+ * output parameters:
+ *   0 : result
+ *   1 : errno
+ */
 
-#endif
+int gettimeofday (struct timeval *tv, void *tzvp)
+{
+  uint32_t ticks = *(uint32_t *)_UTIMER_1MHZ_HI;
+  tv->tv_sec = ticks / 1000000;
+  tv->tv_usec = ticks % 1000000;
+}

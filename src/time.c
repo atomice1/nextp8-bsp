@@ -1,5 +1,8 @@
 /*
+ * io-time.c --
+ *
  * Copyright (C) 2025 Chris January
+ * Copyright (c) 2006 CodeSourcery Inc
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided
@@ -12,11 +15,27 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
+#include <stdlib.h>
+#include <sys/time.h>
+#include <errno.h>
+#include "io.h"
 
-#include <stdint.h>
+/*
+ * time -- get the current time
+ * input parameters:
+ *   0 : timeval ptr
+ * output parameters:
+ *   0 : result
+ *   1 : errno
+ */
 
-extern uint8_t __font[96][5][2];
+time_t time (time_t *t)
+{
+  struct timeval tv;
 
-#endif
+  if (gettimeofday (&tv, NULL))
+    return -1;
+  if (t)
+    *t = tv.tv_sec;
+  return tv.tv_sec;
+}

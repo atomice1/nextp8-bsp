@@ -17,11 +17,10 @@ TOOLCHAIN ?= m68k-elf-
 CC := $(TOOLCHAIN)gcc
 RANLIB := ranlib
 
-ifndef ROM
-ROM = 0
-endif
+ROM ?= 0
+VERSION ?= 0
 
-CFLAGS = -O2 -g
+CFLAGS = -O2 -g -DVERSION=$(VERSION)
 
 ifeq ($(ROM),1)
 CFLAGS += -DROM=1
@@ -38,7 +37,8 @@ OBJS=	isv.o crt1.o getpid.o kill.o sbrk.o \
 		stdio.o fatfs.o disk.o isrs1.o \
 		sdblockdevice.o spi.o arith64.o \
 		kbd.o error.o warm_reset.o time.o \
-		exit.o gettimeofday.o
+		exit.o gettimeofday.o version.o \
+		format_version.o
 ISRS=	other_interrupt access_error address_error \
 	illegal_instruction divide_by_zero privilege_violation \
 	trace unimplemented_opcode breakpoint_debug_interrupt \

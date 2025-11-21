@@ -12,11 +12,11 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
+#include <sys/types.h>
+#include <dirent.h>
+#include "io.h"
 
-#include <stdint.h>
-
-extern uint8_t __font[96][5][2];
-
-#endif
+struct dirent *readdir(DIR *dirp)
+{
+  return _fatfs_readdir(dirp);
+}

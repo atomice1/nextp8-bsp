@@ -47,11 +47,11 @@ static void display_char(int left_margin, int *x, int *y, char c)
                 }
               }
         }
-      *x += FONT_CHAR_WIDTH;
+      *x += _FONT_CHAR_WIDTH;
       if (*x >= _SCREEN_WIDTH || c == '\n')
         {
           *x = left_margin;
-          *y += FONT_CHAR_HEIGHT + 1;
+          *y += _FONT_LINE_HEIGHT;
         }
     }
 }
@@ -74,15 +74,15 @@ static void scroll(int amount)
 
 void _print_char(char c)
 {
-  if (cursor_y + FONT_CHAR_HEIGHT > _SCREEN_HEIGHT)
+  if (cursor_y + _FONT_CHAR_HEIGHT > _SCREEN_HEIGHT)
     {
-      scroll(cursor_y + FONT_CHAR_HEIGHT - _SCREEN_HEIGHT);
+      scroll(cursor_y + _FONT_CHAR_HEIGHT - _SCREEN_HEIGHT);
       cursor_y = _SCREEN_HEIGHT - FONT_CHAR_HEIGHT;
     }
   if (c == '\n')
     {
       cursor_x = 0;
-      cursor_y += FONT_CHAR_HEIGHT + 1;
+      cursor_y += _FONT_LINE_HEIGHT;
     } 
   else
     {
@@ -114,21 +114,13 @@ void _display_string_centered(int centre_x, int centre_y, const char *message)
      }
      p++;
    }
-  int w = maxll * FONT_CHAR_WIDTH;
+  int w = maxll * _FONT_CHAR_WIDTH;
   if (w > _SCREEN_WIDTH)
     w = _SCREEN_WIDTH;
-  int h = lc * (FONT_CHAR_HEIGHT + 1);
+  int h = lc * _FONT_LINE_HEIGHT;
   int x = centre_x - w / 2;
   int y = centre_y - h / 2;
   _display_string(x, y, message);
-}
-
-void _display_error(const char *message)
-{
-  _clear_screen(_RED);
-  _display_string_centered(_SCREEN_WIDTH / 2,
-                           _SCREEN_HEIGHT / 2,
-                           message);
 }
 
 void _flip(void)

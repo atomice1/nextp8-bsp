@@ -12,11 +12,12 @@
  * they apply.
  */
 
-#ifndef FONT_H
-#define FONT_H
+#include "nextp8.h"
 
-#include <stdint.h>
-
-extern uint8_t __font[96][5][2];
-
-#endif
+void __attribute__ ((noreturn)) _warm_reset(void)
+{
+    __asm__("move.l (0).l,%sp\n"
+            "move.l (4).l,%a0\n"
+            "jmp    (%a0)\n");
+    __builtin_unreachable();
+}
