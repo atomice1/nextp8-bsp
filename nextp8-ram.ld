@@ -10,10 +10,6 @@ MEMORY
   ram (rwx) : ORIGIN = 128K, LENGTH = 3968K
 }
 
-/* Place the stack at the end of memory, unless specified otherwise. */
-PROVIDE (__stack = 4095K);
-PROVIDE (_loader_data = __stack + 256);
-
 SECTIONS
 {
   .text :

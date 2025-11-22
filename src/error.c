@@ -51,8 +51,6 @@ static void _show_message_common(enum message_type message_type, const char *mes
                            "Press any key to continue...");
   _flip();
   _wait_for_any_key();
-  if (message_type == FATAL_ERROR)
-    _warm_reset();
 }
 
 #ifdef ROM
@@ -85,6 +83,7 @@ void __attribute__ ((noreturn)) _fatal_error(const char *format, ...)
   va_end(ap);
 #endif
   _show_message_common(FATAL_ERROR, message);
+  _warm_reset();
 }
 
 #ifndef ROM

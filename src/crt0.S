@@ -17,9 +17,9 @@
 	#include "asm.h"	
 	.text
 
+#ifdef ROM
 	.extern __stack
-	.extern __heap_end
-	.weak __heap_end
+#endif
 	.extern __start1
 
 	/* __reset should cause a HALT in a hosted executable and
@@ -35,11 +35,12 @@ __start:
 	move.l IMM(0x80000c),a0
 	moveb #3,a0@
 
-	/* Initialize stack */
+#ifdef ROM
+    /* Initialize stack */
 	move.l IMM(__stack), sp
+#endif
 	move.l IMM(0), fp
-	move.l IMM(__heap_end), d1
 
-	move.l d1,sp@-
+	move.l sp,sp@-
 	move.l fp,sp@-  /* Dummy return address */
 	jmp __start1

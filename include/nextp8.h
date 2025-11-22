@@ -95,13 +95,9 @@
 #define _TUBE_STDERR        0xffffff
 
 #define _CONFIG_BASE_ROM    0x7c000
-#define _CONFIG_BASE_RAM    0x3ffc00
 #ifdef ROM
 #define _CONFIG_BASE        _CONFIG_BASE_ROM
-#else
-#define _CONFIG_BASE        _CONFIG_BASE_RAM
 #endif
-#define _LOADER_DATA        (_CONFIG_BASE_RAM + 256)
 
 enum {
     _BLACK = 0,
@@ -123,15 +119,33 @@ enum {
 };
 
 struct _loader_data {
+    uint32_t magic;
     uint32_t loader_version;
     uint32_t loader_timestamp;
     uintptr_t entry_point;
 };
 
+#define LOADER_MAGIC 0x12345432
+
+struct _config_data {
+    uint8_t video_timing;          // +0 video timing mode (0..7)
+    uint8_t scandoubler;           // +1 scandoubler (0=off, 1=on)
+    uint8_t frequency;             // +2 frequency (0=50Hz, 1=60Hz)
+    uint8_t ps2_mode;              // +3 PS/2 mode (0=keyboard, 1=mouse)
+    uint8_t scanline_weight;       // +4 scanline weight (0=off, 1=75%, 2=50%, 3=25%)
+    uint8_t internal_speaker;      // +5 internal speaker (0=disabled, 1=enabled)
+    uint8_t hdmi_sound;            // +6 HDMI sound (0=disabled, 1=enabled)
+    uint8_t reserved1[9];          // +7..15 RESERVED
+    uint8_t userfile_selected[16]; // +16..31 userfile selection status (0=not selected, 1=selected)
+    char core_path[32];            // +32..63 null-terminated path of the core
+    uint8_t reserved2[192];        // +64..255 reserved for future use
+} __attribute__((packed));
+
 extern uint32_t _bsp_timestamp;
 extern uint32_t _bsp_version;
+extern struct _config_data *_config_data;
 #ifndef ROM
-extern const struct _loader_data _loader_data;
+extern struct _loader_data *_loader_data;
 #endif
 
 extern void _set_postcode(int postcode);
