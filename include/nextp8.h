@@ -33,6 +33,9 @@
 #define _BUILD_TIMESTAMP_LO (_MEMIO_BASE + 0x16)
 #define _HW_VERSION_HI      (_MEMIO_BASE + 0x18)
 #define _HW_VERSION_LO      (_MEMIO_BASE + 0x1a)
+#define _UART_CTRL          (_MEMIO_BASE + 0x24)
+#define _UART_DATA          (_MEMIO_BASE + 0x25)
+#define _UART_BAUD_DIV      (_MEMIO_BASE + 0x2c)
 #define _UTIMER_1MHZ_HI     (_MEMIO_BASE + 0x2E)
 #define _UTIMER_1MHZ_LO     (_MEMIO_BASE + 0x30)
 #define _UTIMER_1KHZ_HI     (_MEMIO_BASE + 0x32)
@@ -166,6 +169,7 @@ extern void __attribute__ ((noreturn)) _fatal_error(const char *format, ...);
 extern void _recoverable_error(const char *format, ...);
 extern void _show_message(const char *format, ...);
 #endif
+extern void _uart_write(const char *buf, size_t count);
 extern void _wait_for_any_key(void);
 
 #endif

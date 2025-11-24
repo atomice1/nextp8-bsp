@@ -58,13 +58,8 @@ static ssize_t stdio_write(struct _file *file, const void *buf, size_t count)
       if (file->stdio == 2)
         append_to_last_error(buf, count);
 #endif
-      const char *src = (const char *) buf;
-      char *dst = (char *)((file->stdio == 2) ? _TUBE_STDERR : _TUBE_STDOUT);
-      for (size_t i=0;i<count;++i)
-        {
-          char c = *src++;
-          *dst = c;
-        }
+
+      _uart_write(buf, count);
       return count;
     }
 }

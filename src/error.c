@@ -25,15 +25,6 @@ enum message_type {
   MESSAGE
 };
 
-static void write_tube(const char *message)
-{
-  char *p =  (char *)_TUBE_STDERR;
-  char c;
-  while ((c = *message++))
-    *p = c;
-  *p = '\n';
-}
-
 static void _show_message_common(enum message_type message_type, const char *message)
 {
   int vfront = *(uint8_t *)_VFRONT;
@@ -42,7 +33,8 @@ static void _show_message_common(enum message_type message_type, const char *mes
   _display_string_centered(_SCREEN_WIDTH / 2,
                            _SCREEN_HEIGHT / 2,
                            message);
-  write_tube(message);
+  _uart_write(message, strlen(message));
+  _uart_write("\n", 1);
   usleep(1000000);
   _display_string_centered(_SCREEN_WIDTH / 2,
                            _SCREEN_HEIGHT - _FONT_LINE_HEIGHT * 2,
