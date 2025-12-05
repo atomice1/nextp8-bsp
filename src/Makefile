@@ -20,13 +20,14 @@ RANLIB := ranlib
 ROM ?= 0
 VERSION ?= 0
 
-CFLAGS = -O2 -g -DVERSION=$(VERSION)
+CFLAGS = -g -DVERSION=$(VERSION)
 
 ifeq ($(ROM),1)
-CFLAGS += -DROM=1
+CFLAGS += -Os -DROM=1
 NEXTP8_BSP = libnextp8-rom.a
 CRT0 = crt0-rom.o
 else
+CFLAGS += -O2
 NEXTP8_BSP = libnextp8-ram.a
 CRT0 = crt0-ram.o
 endif

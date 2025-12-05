@@ -54,12 +54,12 @@ void __start1 (char *initial_stack)
 {
   unsigned ix;
   
-  _set_postcode(4);
+  _set_postcode(5);
 
   if (hardware_init_hook)
     hardware_init_hook ();
   
-  _set_postcode(5);
+  _set_postcode(6);
 
   /* Initialize memory */
   if (__data_load != __data_start)
@@ -69,22 +69,22 @@ void __start1 (char *initial_stack)
   __initial_stack = initial_stack;
   __heap_limit = initial_stack - STACK_SIZE;
 
-  _set_postcode(6);
+  _set_postcode(7);
   
   if (software_init_hook)
     software_init_hook ();
 
-  _set_postcode(7);
+  _set_postcode(8);
 
   _init ();
 
-  _set_postcode(8);
+  _set_postcode(9);
 
   /* I'm not sure how useful it is to have a fini_section in an
      embedded system.  */
   atexit (_fini);
   
-  _set_postcode(9);
+  _set_postcode(10);
 
   ix = main (0, NULL, NULL);
 

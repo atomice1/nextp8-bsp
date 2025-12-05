@@ -20,6 +20,10 @@
 #include "nextp8.h"
 #include "sdblockdevice.h"
 
+#ifdef ROM
+extern void _rom_fatal_error(const char *fn, int res);
+#endif
+
 static struct _sd_block_device sd[2];
 static bool sd_initialized[2];
 
@@ -46,7 +50,7 @@ DSTATUS disk_initialize (
         } else {
             const char *error_message = NULL;
             switch (res) {
-                case SD_BLOCK_DEVICE_ERROR_NO_DEVICE:
+            case SD_BLOCK_DEVICE_ERROR_NO_DEVICE:
                 error_message = "SD card is missing or not connected.";
                 break;
             case SD_BLOCK_DEVICE_ERROR_UNUSABLE:
@@ -57,12 +61,16 @@ DSTATUS disk_initialize (
                 break;
             default:
                 error_message = "unknown SD card error";
+#ifdef ROM
+                _rom_fatal_error("disk_initialize", res);
+#endif
                 break;
             }
             if (pdrv == 0)
                 _fatal_error(error_message);
             else
                 _recoverable_error(error_message);
+            return STA_NOINIT;
         }
     }
     return RES_OK;
@@ -82,7 +90,9 @@ DRESULT disk_read (
                        (sd_size_t)sector * sector_size,
                        (sd_size_t)count * sector_size);
     if (res != SD_BLOCK_DEVICE_OK) {
-#ifndef ROM
+#ifdef ROM
+        _rom_fatal_error("_sd_read", res);
+#else
         fprintf(stderr, "_sd_read: error %d\n", res);
 #endif
         return RES_ERROR;

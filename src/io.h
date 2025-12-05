@@ -23,7 +23,11 @@
 #include <sys/types.h>
 #include "ff.h"
 
+#ifdef ROM
+#define _NR_FILES 4
+#else
 #define _NR_FILES 8
+#endif
 
 struct _file;
 

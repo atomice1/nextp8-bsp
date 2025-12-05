@@ -16,6 +16,10 @@
 
 #include <stdio.h>
 
+#ifdef ROM
+extern void _rom_fatal_error(const char *fn, int res);
+#endif
+
 int fresult2errno(FRESULT fr) {
     switch (fr) {
         case FR_OK:
@@ -88,12 +92,7 @@ void _init_fatfs(void)
         else 
           {
 #ifdef ROM
-            char buf[10];
-            strncpy(buf, "error: ", 7);
-            buf[7] = '0' + ((res / 10) % 10);
-            buf[8] = '0' + (res % 10);
-            buf[9] = '\0';
-            _fatal_error(buf);
+            _rom_fatal_error("_init_fatfs", res);
 #else
             if (i == 0)
               _fatal_error("%s: error %d", volume_names[i], res);
@@ -114,7 +113,6 @@ int _fatfs_access(const char *pathname, int mode)
   FRESULT res;
   FILINFO info;
   res = f_stat(pathname, &info);
-  printf("f_stat(%s) = %d\n", pathname, res);
   if (res != FR_OK)
     {
       errno = fresult2errno(res);
@@ -225,6 +223,9 @@ static ssize_t fatfs_read(struct _file *file, void *buf, size_t count)
   res = f_read(&file->fil, buf, count, &bytes_read);
   if (res != FR_OK)
     {
+#ifdef ROM
+      _rom_fatal_error("_init_fatfs", res);
+#endif
       errno = fresult2errno(res);
       return -1;
     }
@@ -286,7 +287,6 @@ int _fatfs_stat (const char *__restrict filename, struct stat *__restrict buf)
       errno = fresult2errno(res);
       return -1;
     }
-  printf("filename: %s attrib: %d 0x%x\n", filename, info.fattrib, info.fattrib);
   buf->st_dev = 0;
   buf->st_ino = 0;
   buf->st_mode = ((info.fattrib & AM_RDO) ? 0444 : 0666) | ((info.fattrib & AM_DIR) ? 0040111 : 0);
@@ -374,6 +374,13 @@ int _fatfs_open(struct _file *file, const char *filename, int flags, mode_t mode
       if (res == FR_NO_FILESYSTEM)
         {
           _fatal_error("No FAT32 filesystem on SD card.");
+        }
+      else
+        {
+#ifdef ROM
+          if (res != FR_NO_FILE && res != FR_NO_PATH)
+            _rom_fatal_error("_fatfs_open", res);
+#endif
         }
       errno = fresult2errno(res);
       return -1;

@@ -89,3 +89,21 @@ void _show_message(const char *format, ...)
   _show_message_common(MESSAGE, message);
 }
 #endif
+
+#ifdef ROM
+void _rom_fatal_error(const char *fn, int res)
+{
+  char buf[40];
+  size_t fn_len = strlen(fn);
+  memcpy(buf, fn, fn_len);
+  memcpy(buf + fn_len, ": error ", 8);
+  buf[fn_len+8] = (res < 0) ? '-' : ' ';
+  if (res < 0) res = -res;
+  buf[fn_len+9] = '0' + ((res / 1000) % 10);
+  buf[fn_len+10] = '0' + ((res / 100) % 10);
+  buf[fn_len+11] = '0' + ((res / 10) % 10);
+  buf[fn_len+12] = '0' + (res % 10);
+  buf[fn_len+13] = '\0';
+  _fatal_error(buf);
+}
+#endif

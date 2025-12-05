@@ -33,7 +33,7 @@ __reset:
 __start:
 	/* Update POST code */
 	move.l IMM(0x80000c),a0
-	moveb #3,a0@
+	moveb #4,a0@
 
 #ifdef ROM
     /* Initialize stack */

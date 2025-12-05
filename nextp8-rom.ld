@@ -8,7 +8,7 @@ __DYNAMIC  =  0;
 
 MEMORY
 {
-  rom (rx) : ORIGIN = 0M, LENGTH = 64K
+  rom (rx) : ORIGIN = 0M, LENGTH = 32K
   ram (rw) : ORIGIN = 960K, LENGTH = 65024
 }
 

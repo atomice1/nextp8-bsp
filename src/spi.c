@@ -24,7 +24,7 @@
 static uint8_t write_fill = SPI_FILL_CHAR;
 static int select_count = 0;
 
-#define SDSPI_CLOCK 32500000
+#define SDSPI_CLOCK 11000000
 
 void _spi_format(int bits, int mode /* = 0 */)
 {

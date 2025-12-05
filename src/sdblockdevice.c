@@ -437,9 +437,10 @@ int _sd_initialise_card(struct _sd_block_device *this)
     } while ((response & R1_IDLE_STATE) && (get_elapsed(spi_timer) < SD_COMMAND_TIMEOUT));
 
     // Initialization complete: ACMD41 successful
-    if ((SD_BLOCK_DEVICE_OK != status) || (0x00 != response)) {
+    if ((SD_BLOCK_DEVICE_OK != status) || (response & R1_IDLE_STATE)) {
         this->_card_type = CARD_UNKNOWN;
         debug_if(SD_DBG, "Timeout waiting for card\n");
+
         return status;
     }
 
@@ -562,12 +563,14 @@ bool _sd_is_valid_program(struct _sd_block_device *this, sd_addr_t addr, sd_size
 int _sd_program(struct _sd_block_device *this, const void *b, sd_addr_t addr, sd_size_t size)
 {
     if (!_sd_is_valid_program(this, addr, size)) {
+        debug_if(SD_DBG, "Invalid program parameters: addr=0x%x, size=0x%x\n", addr, size);
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     _sd_lock(this);
     if (!this->_is_initialized) {
         _sd_unlock(this);
+        debug_if(SD_DBG, "SD block device not initialized\n");
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
@@ -649,13 +652,15 @@ bool _sd_is_valid_read(struct _sd_block_device *this, sd_addr_t addr, sd_size_t 
 int _sd_read(struct _sd_block_device *this, void *b, sd_addr_t addr, sd_size_t size)
 {
     if (!_sd_is_valid_read(this, addr, size)) {
+        debug_if(SD_DBG, "Invalid read parameters: addr=0x%x, size=0x%x\n", addr, size);
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     _sd_lock(this);
     if (!this->_is_initialized) {
         _sd_unlock(this);
-        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
+        debug_if(SD_DBG, "SD block device not initialized\n");
+        return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
     uint8_t *buffer = (uint8_t *)b;
@@ -709,12 +714,14 @@ bool _sd_is_valid_trim(struct _sd_block_device *this, sd_addr_t addr, sd_size_t 
 int _sd_trim(struct _sd_block_device *this, sd_addr_t addr, sd_size_t size)
 {
     if (!_sd_is_valid_trim(this, addr, size)) {
+        debug_if(SD_DBG, "Invalid trim parameters: addr=0x%x, size=0x%x\n", addr, size);
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     _sd_lock(this);
     if (!this->_is_initialized) {
         _sd_unlock(this);
+        debug_if(SD_DBG, "SD block device not initialized\n");
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
     int status = SD_BLOCK_DEVICE_OK;
@@ -913,6 +920,7 @@ int _sd_cmd(struct _sd_block_device *this, enum cmdSupported cmd, uint32_t arg, 
         status = SD_BLOCK_DEVICE_ERROR_ERASE;            // Erase error
     } else if ((response & R1_ADDRESS_ERROR) || (response & R1_PARAMETER_ERROR)) {
         // Misaligned address / invalid address block length
+        debug_if(SD_DBG, "Parameter error CMD:%d response 0x%" PRIx32 "\n", cmd, response);
         status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
@@ -1155,6 +1163,7 @@ sd_size_t _sd_sectors(struct _sd_block_device *this)
             capacity = (sd_size_t) blocknr * block_len;  // memory capacity = BLOCKNR * BLOCK_LEN
             blocks = capacity / _block_size;
             debug_if(SD_DBG, "Standard Capacity: c_size: %" PRIu32 " \n", c_size);
+            debug_if(SD_DBG, "Block size: %" PRIu32 " \n", _block_size);
             debug_if(SD_DBG, "Sectors: 0x%" PRIx64 " : %" PRIu64 "\n", blocks, blocks);
             debug_if(SD_DBG, "Capacity: 0x%" PRIx64 " : %" PRIu64 " MB\n", capacity, (capacity / (1024U * 1024U)));
 
@@ -1169,11 +1178,12 @@ sd_size_t _sd_sectors(struct _sd_block_device *this)
 
         case 1:
             hc_c_size = ext_bits(csd, 69, 48);            // device size : C_SIZE : [69:48]
-            capacity = (hc_c_size + 1) << 10;
+            capacity = (hc_c_size + 1) << 19;
             blocks = capacity / _block_size;
             debug_if(SD_DBG, "SDHC/SDXC Card: hc_c_size: %" PRIu32 " \n", hc_c_size);
+            debug_if(SD_DBG, "Block size: %" PRIu32 " \n", _block_size);
             debug_if(SD_DBG, "Sectors: 0x%" PRIx64 " : %" PRIu64 "\n", blocks, blocks);
-            debug_if(SD_DBG, "Capacity: %" PRIu64 " MB\n", (uint16_t) (blocks / (2048U)));
+            debug_if(SD_DBG, "Capacity: %" PRIu64 " MB\n", blocks >> 11);
             // ERASE_BLK_EN is fixed to 1, which means host can erase one or multiple of 512 bytes.
             this->_erase_size = BLOCK_SIZE_HC;
             break;
