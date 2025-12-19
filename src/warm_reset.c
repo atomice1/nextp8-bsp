@@ -14,10 +14,20 @@
 
 #include "nextp8.h"
 
+extern char *__initial_stack;
+extern void __start(void);
+
 void __attribute__ ((noreturn)) _warm_reset(void)
 {
+#ifdef ROM
     __asm__("move.l (0).l,%sp\n"
             "move.l (4).l,%a0\n"
             "jmp    (%a0)\n");
+#else
+    __asm__("move.l %0,%%sp\n"
+            "move.l %1,%%a0\n"
+            "jmp    (%%a0)\n"
+            :: "g"(__initial_stack), "g"(__start));
+#endif
     __builtin_unreachable();
 }
