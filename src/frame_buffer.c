@@ -136,6 +136,5 @@ void _flip(void)
 
 void _copy_front_to_back(void)
 {
-  int vfront = *(volatile uint8_t *) _VFRONT;
-  memcpy((uint8_t *)_BACK_BUFFER_BASE, (uint8_t *)_FRAME_BUFFER1_BASE + vfront * _FRAME_BUFFER_SIZE, _FRAME_BUFFER_SIZE);
+  memcpy((uint8_t *)_BACK_BUFFER_BASE, (uint8_t *)_FRONT_BUFFER_BASE, _FRAME_BUFFER_SIZE);
 }
