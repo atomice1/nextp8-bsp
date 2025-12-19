@@ -129,6 +129,7 @@ void __attribute__ ((weak)) software_init_hook (void)
   *(volatile uint16_t *)_PARAMS = params;
 
   /* Set boot screen to dark blue. */
+  *(volatile uint8_t *)_OVERLAY_CONTROL = 0;
   _clear_screen(_DARK_BLUE);
   _flip();
 

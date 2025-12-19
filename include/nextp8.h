@@ -28,6 +28,7 @@
 #define _POST_CODE          (_MEMIO_BASE + 0xc)
 #define _VFRONT             (_MEMIO_BASE + 0xe)
 #define _VFRONTREQ          (_MEMIO_BASE + 0xe)
+#define _OVERLAY_CONTROL    (_MEMIO_BASE + 0x10)
 #define _PARAMS             (_MEMIO_BASE + 0x12)
 #define _BUILD_TIMESTAMP_HI (_MEMIO_BASE + 0x14)
 #define _BUILD_TIMESTAMP_LO (_MEMIO_BASE + 0x16)
@@ -88,10 +89,12 @@
 
 #define _BACK_BUFFER_BASE   0xc00000
 #define _FRONT_BUFFER_BASE  0xc02000
-#define _FRAME_BUFFER1_BASE 0xc04000
-#define _FRAME_BUFFER2_BASE 0xc06000
+#define _OVERLAY_BACK_BUFFER_BASE  0xc04000
+#define _OVERLAY_FRONT_BUFFER_BASE 0xc06000
 #define _PALETTE_BASE       0xc08000
 #define _FRAME_BUFFER_SIZE  8192 // 0x2000
+#define _OVERLAY_ENABLE_BIT 0x40
+#define _OVERLAY_TRANSPARENT_MASK 0xf
 #define _PALETTE_SIZE       16
 #define _SCREEN_WIDTH       128
 #define _SCREEN_HEIGHT      128
