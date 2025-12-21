@@ -63,9 +63,10 @@ SECTIONS
     _etext = .;
   } >ram
 
-  .data :
+  __data_load = .;
+
+  .data __data_load + SIZEOF(.data) : AT(__data_load)
   {
-    __data_load = LOADADDR (.data);
     __data_start = .;
     *(.got.plt) *(.got)
     *(.shdata)

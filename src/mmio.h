@@ -12,12 +12,13 @@
  * they apply.
  */
 
-#include "nextp8.h"
-#include "mmio.h"
+#ifndef MMIO_H
+#define MMIO_H 
 
-void __attribute__ ((noreturn)) _warm_reset(void)
-{
-    MMIO_REG8(_RESET_REQ) = 1;
-    for (;;) {}
-    __builtin_unreachable();
-}
+#include <stdint.h>
+
+#define MMIO_REG8(addr)     (*(volatile uint8_t *)(addr))
+#define MMIO_REG16(addr)    (*(volatile uint16_t *)(addr))
+#define MMIO_REG32(addr)    (*(volatile uint32_t *)(addr))
+
+#endif

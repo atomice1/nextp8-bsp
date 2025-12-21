@@ -15,10 +15,11 @@
 #include <stdint.h>
 #include <unistd.h>
 #include "nextp8.h"
+#include "mmio.h"
 
 int usleep(useconds_t usec)
 {
-    uint32_t start = *(volatile uint32_t *)_UTIMER_1MHZ_HI;
-    while (*(volatile uint32_t *)_UTIMER_1MHZ_HI - start < usec) { }
+    uint32_t start = MMIO_REG32(_UTIMER_1MHZ_HI);
+    while (MMIO_REG32(_UTIMER_1MHZ_HI) - start < usec) { }
     return 0;
 }

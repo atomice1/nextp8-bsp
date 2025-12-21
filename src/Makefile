@@ -39,7 +39,7 @@ OBJS=	isv.o crt1.o getpid.o kill.o sbrk.o \
 		sdblockdevice.o spi.o arith64.o \
 		kbd.o error.o warm_reset.o time.o \
 		exit.o gettimeofday.o version.o \
-		format_version.o uart.o
+		format_version.o uart.o restart.o
 ISRS=	other_interrupt access_error address_error \
 	illegal_instruction divide_by_zero privilege_violation \
 	trace unimplemented_opcode breakpoint_debug_interrupt \

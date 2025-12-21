@@ -16,14 +16,15 @@
 #include <sys/times.h>
 #include <time.h>
 #include "nextp8.h"
+#include "mmio.h"
 
 clock_t times(struct tms *buf)
 {
     uint32_t utimer;
     if (CLOCKS_PER_SEC == 1000)
-        utimer = *(volatile uint32_t *)_UTIMER_1KHZ_HI;
+        utimer = MMIO_REG32(_UTIMER_1KHZ_HI);
     else
-        utimer = *(volatile uint32_t *)_UTIMER_1MHZ_HI;
+        utimer = MMIO_REG32(_UTIMER_1MHZ_HI);
     buf->tms_utime = utimer;
     buf->tms_stime = utimer;
     buf->tms_cutime = utimer;

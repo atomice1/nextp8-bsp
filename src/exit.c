@@ -19,8 +19,6 @@
 
 char *last_error = NULL;
 
-extern void __reset (void);
-
 /*
  * _exit -- Exit from the application.
  */
@@ -36,9 +34,10 @@ void __attribute__ ((noreturn)) _exit (int code)
     }
   else
     {
-      while (1)
-        {
-          _warm_reset();
-        }
+#ifdef ROM
+      _warm_reset();
+#else
+      _restart();
+#endif
     }
 }

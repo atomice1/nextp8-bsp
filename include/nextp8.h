@@ -26,6 +26,8 @@
 #define _SDSPI_READY        (_MEMIO_BASE + 0x8)
 #define _SDSPI_CHIP_SELECT  (_MEMIO_BASE + 0xa)
 #define _POST_CODE          (_MEMIO_BASE + 0xc)
+#define _RESET_TYPE         (_MEMIO_BASE + 0xd)
+#define _RESET_REQ          (_MEMIO_BASE + 0xd)
 #define _VFRONT             (_MEMIO_BASE + 0xe)
 #define _VFRONTREQ          (_MEMIO_BASE + 0xe)
 #define _OVERLAY_CONTROL    (_MEMIO_BASE + 0x10)
@@ -129,11 +131,19 @@ enum {
     _LIGHT_PEACH
 };
 
+enum {
+    _RESET_TYPE_POWER_ON    = 0,
+    _RESET_TYPE_WARM_BTN    = 1,
+    _RESET_TYPE_WARM_SW     = 2,
+    _RESET_TYPE_APP_RESTART = 3
+};
+
 struct _loader_data {
     uint32_t magic;
     uint32_t loader_version;
     uint32_t loader_timestamp;
     uintptr_t entry_point;
+    unsigned reset_type;
 };
 
 #define LOADER_MAGIC 0x12345432
@@ -168,6 +178,8 @@ extern void _display_string_centered(int x, int y, const char *s);
 extern void _flip(void);
 extern uint32_t get_bsp_version(void);
 extern void __attribute__ ((noreturn)) _halt(void);
+extern void _uart_write(const char *buf, size_t count);
+extern void _wait_for_any_key(void);
 extern void __attribute__ ((noreturn)) _warm_reset(void);
 #ifdef ROM
 extern void __attribute__ ((noreturn)) _fatal_error(const char *message);
@@ -175,9 +187,8 @@ extern void _recoverable_error(const char *message);
 #else
 extern void __attribute__ ((noreturn)) _fatal_error(const char *format, ...);
 extern void _recoverable_error(const char *format, ...);
+extern void __attribute__ ((noreturn)) _restart(void);
 extern void _show_message(const char *format, ...);
 #endif
-extern void _uart_write(const char *buf, size_t count);
-extern void _wait_for_any_key(void);
 
 #endif

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "nextp8.h"
+#include "mmio.h"
 #include "font.h"
 
 static int cursor_x = 0, cursor_y = 0;
@@ -125,11 +126,11 @@ void _display_string_centered(int centre_x, int centre_y, const char *message)
 
 void _flip(void)
 {
-  int vfront = *(volatile uint8_t *) _VFRONT;
+  int vfront = MMIO_REG8(_VFRONT);
   int vback = 1 - vfront;
   int vfrontreq = vback;
-  *(volatile uint8_t *) _VFRONTREQ = vfrontreq;
-  while (*(volatile uint8_t *) _VFRONT != vfrontreq) {
+  MMIO_REG8(_VFRONTREQ) = vfrontreq;
+  while (MMIO_REG8(_VFRONT) != vfrontreq) {
     // wait for flip to complete
   }
 }

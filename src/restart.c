@@ -13,11 +13,18 @@
  */
 
 #include "nextp8.h"
-#include "mmio.h"
 
-void __attribute__ ((noreturn)) _warm_reset(void)
+extern char *__initial_stack;
+extern void __start(void);
+
+#ifndef ROM
+void __attribute__ ((noreturn)) _restart(void)
 {
-    MMIO_REG8(_RESET_REQ) = 1;
-    for (;;) {}
-    __builtin_unreachable();
+  _loader_data->reset_type = _RESET_TYPE_APP_RESTART;
+  __asm__("move.l %0,%%sp\n"
+          "move.l %1,%%a0\n"
+          "jmp    (%%a0)\n"
+          :: "g"(__initial_stack), "g"(__start));
+  __builtin_unreachable();
 }
+#endif

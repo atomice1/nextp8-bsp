@@ -20,6 +20,7 @@
 
 #include "spi.h"
 #include "nextp8.h"
+#include "mmio.h"
 
 static uint8_t write_fill = SPI_FILL_CHAR;
 static int select_count = 0;
@@ -32,18 +33,18 @@ void _spi_format(int bits, int mode /* = 0 */)
 
 void _spi_frequency(int hz)
 {
-  *(volatile uint8_t *)_SDSPI_DIVIDER = SDSPI_CLOCK / hz;
+  MMIO_REG8(_SDSPI_DIVIDER) = SDSPI_CLOCK / hz;
 }
 
 int _spi_write(int value)
 {
-  while (*(volatile uint8_t *)_SDSPI_READY) {}; /* Wait for ready */
-  *(volatile uint8_t *)_SDSPI_DATA_IN = value;
-  *(volatile uint8_t *)_SDSPI_WRITE_ENABLE = 1;
-  while (!*(volatile uint8_t *)_SDSPI_READY) {}; /* Wait for latch */
-  *(volatile uint8_t *)_SDSPI_WRITE_ENABLE = 0;
-  while (*(volatile uint8_t *)_SDSPI_READY) {}; /* Wait for send to finish */
-  int ret = *(volatile uint8_t *)_SDSPI_DATA_OUT;
+  while (MMIO_REG8(_SDSPI_READY)) {}; /* Wait for ready */
+  MMIO_REG8(_SDSPI_DATA_IN) = value;
+  MMIO_REG8(_SDSPI_WRITE_ENABLE) = 1;
+  while (!MMIO_REG8(_SDSPI_READY)) {}; /* Wait for latch */
+  MMIO_REG8(_SDSPI_WRITE_ENABLE) = 0;
+  while (MMIO_REG8(_SDSPI_READY)) {}; /* Wait for send to finish */
+  int ret = MMIO_REG8(_SDSPI_DATA_OUT);
   return ret;
 }
 
@@ -75,13 +76,13 @@ void _spi_unlock(void)
 void _spi_select(int index)
 {
   if (select_count++ == 0)
-    *(volatile uint8_t *)_SDSPI_CHIP_SELECT = 0xff & ~(1 << index);
+    MMIO_REG8(_SDSPI_CHIP_SELECT) = 0xff & ~(1 << index);
 }
 
 void _spi_deselect()
 {
   if (--select_count == 0)
-    *(volatile uint8_t *)_SDSPI_CHIP_SELECT = 0xff;
+    MMIO_REG8(_SDSPI_CHIP_SELECT) = 0xff;
 }
 
 void _spi_set_default_write_value(char data)

@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nextp8.h"
+#include "mmio.h"
 #include "version_macros.h"
 
 #define HW_API_VERSION     0
@@ -53,12 +54,12 @@ extern int main (int, char **, char **);
 void __start1 (char *initial_stack)
 {
   unsigned ix;
-  
+
   _set_postcode(5);
 
   if (hardware_init_hook)
     hardware_init_hook ();
-  
+
   _set_postcode(6);
 
   /* Initialize memory */
@@ -70,7 +71,7 @@ void __start1 (char *initial_stack)
   __heap_limit = initial_stack - STACK_SIZE;
 
   _set_postcode(7);
-  
+
   if (software_init_hook)
     software_init_hook ();
 
@@ -83,7 +84,7 @@ void __start1 (char *initial_stack)
   /* I'm not sure how useful it is to have a fini_section in an
      embedded system.  */
   atexit (_fini);
-  
+
   _set_postcode(10);
 
   ix = main (0, NULL, NULL);
@@ -93,9 +94,8 @@ void __start1 (char *initial_stack)
   exit (ix);
 
   _set_postcode(63);
-  
-  while (1)
-    _warm_reset();
+
+  _warm_reset();
 }
 
 /* A default hardware init hook.  */
@@ -108,12 +108,57 @@ void __attribute__ ((weak)) hardware_init_hook (void)
 #endif
 
   /* Should we drop into user mode here? */
+
+  MMIO_REG8(_SDSPI_WRITE_ENABLE) = 0x0000;
+  MMIO_REG8(_SDSPI_DIVIDER)      = 0x00FF;
+  MMIO_REG8(_SDSPI_DATA_IN)      = 0x0000;
+  MMIO_REG8(_SDSPI_CHIP_SELECT)  = 0x0003;
+  MMIO_REG8(_VFRONTREQ)           = 0x00;
+  MMIO_REG8(_OVERLAY_CONTROL)     = 0x00;
+  MMIO_REG16(_PARAMS)             = 0x0000;
+  MMIO_REG8(_I2C_DATA)            = 0x00;
+  MMIO_REG8(_I2C_CTRL)            = 0x00;
+  MMIO_REG16(_UART_CTRL)          = 0x0000;
+  MMIO_REG8(_UART_DATA)           = 0x00;
+  MMIO_REG16(_UART_BAUD_DIV)      = 95;  // 115200 baud
+  MMIO_REG16(_ESP_CTRL)           = 0x0000;
+  MMIO_REG8(_ESP_DATA)            = 0x00;
+  MMIO_REG16(_ESP_BAUD_DIV)       = 95;  // 115200 baud
+  MMIO_REG16(_DA_CONTROL)         = 0x0000;
+  MMIO_REG16(_DA_PERIOD)          = 0x0000;
+  MMIO_REG16(_DEBUG_REG_HI)       = 0x0000;
+  MMIO_REG16(_DEBUG_REG_LO)       = 0x0000;
+  volatile uint8_t *palette0 = (volatile uint8_t *)_PALETTE_BASE;
+  for (int i = 0; i < 16; i++)
+    {
+      palette0[i] = i;
+    }
+  volatile uint8_t *palette1 = (volatile uint8_t *)(_PALETTE_BASE + 16);
+  for (int i = 0; i < 16; i++)
+    {
+      palette1[i] = i;
+    }
+  MMIO_REG16(_P8AUDIO_CTRL)          = 0x0000;
+  MMIO_REG16(_P8AUDIO_SFX_BASE_HI)   = 0x0000;
+  MMIO_REG16(_P8AUDIO_SFX_BASE_LO)   = 0x0000;
+  MMIO_REG16(_P8AUDIO_MUSIC_BASE_HI) = 0x0000;
+  MMIO_REG16(_P8AUDIO_MUSIC_BASE_LO) = 0x0000;
+  MMIO_REG8(_P8AUDIO_HWFX40)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX41)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX42)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX43)         = 0x00;
+  MMIO_REG16(_P8AUDIO_NOTE_ATK_TIME) = 0x0010;
+  MMIO_REG16(_P8AUDIO_NOTE_REL_TIME) = 0x0010;
+  MMIO_REG16(_P8AUDIO_SFX_CMD)       = 0xffff;
+  MMIO_REG16(_P8AUDIO_SFX_LEN)       = 0x0000;
+  MMIO_REG16(_P8AUDIO_MUSIC_CMD)     = 0xffff;
+  MMIO_REG16(_P8AUDIO_MUSIC_FADE)    = 0x0010;
 }
 
 void __attribute__ ((weak)) software_init_hook (void)
 {
   /* Check for hardware compatibility */
-  uint32_t hw_version = *(uint32_t *)_HW_VERSION_HI;
+  uint32_t hw_version = MMIO_REG32(_HW_VERSION_HI);
   if (_EXTRACT_API(hw_version) != HW_API_VERSION) {
     _clear_screen(_RED); _flip();
     _fatal_error("Incompatible hardware version");
@@ -126,10 +171,10 @@ void __attribute__ ((weak)) software_init_hook (void)
 #endif
   unsigned ps2_mode = _config_data->ps2_mode;
   uint16_t params = (ps2_mode << 0);
-  *(volatile uint16_t *)_PARAMS = params;
+  MMIO_REG16(_PARAMS) = params;
 
   /* Set boot screen to dark blue. */
-  *(volatile uint8_t *)_OVERLAY_CONTROL = 0;
+  MMIO_REG8(_OVERLAY_CONTROL) = 0;
   _clear_screen(_DARK_BLUE);
   _flip();
 

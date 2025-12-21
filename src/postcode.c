@@ -14,8 +14,9 @@
 
  #include <stdint.h>
  #include "nextp8.h"
+ #include "mmio.h"
 
  void _set_postcode(int postcode)
  {
-    *(volatile uint8_t *)_POST_CODE = postcode;
+    MMIO_REG8(_POST_CODE) = postcode;
  }

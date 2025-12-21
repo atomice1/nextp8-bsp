@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "nextp8.h"
+#include "mmio.h"
 
 void _uart_write(const char *buf, size_t count)
 {
@@ -22,11 +23,11 @@ void _uart_write(const char *buf, size_t count)
   for (size_t i=0;i<count;++i)
     {
       char c = *src++;
-      *(volatile uint8_t *)_UART_DATA = c;
-      while (*(volatile uint8_t *)_UART_CTRL & 2 == 0) { }
-      *(volatile uint8_t *)_UART_CTRL = 1;
-      *(volatile uint8_t *)_UART_CTRL = 1;
-      *(volatile uint8_t *)_UART_CTRL = 1;
-      *(volatile uint8_t *)_UART_CTRL = 0;
+      MMIO_REG8(_UART_DATA) = c;
+      while (MMIO_REG8(_UART_CTRL) & 2 == 0) { }
+      MMIO_REG8(_UART_CTRL) = 1;
+      MMIO_REG8(_UART_CTRL) = 1;
+      MMIO_REG8(_UART_CTRL) = 1;
+      MMIO_REG8(_UART_CTRL) = 0;
     }
  }
