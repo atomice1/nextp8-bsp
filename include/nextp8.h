@@ -19,12 +19,12 @@
 #include <stdint.h>
 
 #define _MEMIO_BASE         0x800000
-#define _SDSPI_WRITE_ENABLE (_MEMIO_BASE + 0x0)
-#define _SDSPI_DIVIDER      (_MEMIO_BASE + 0x2)
-#define _SDSPI_DATA_IN      (_MEMIO_BASE + 0x4)
-#define _SDSPI_DATA_OUT     (_MEMIO_BASE + 0x6)
-#define _SDSPI_READY        (_MEMIO_BASE + 0x8)
-#define _SDSPI_CHIP_SELECT  (_MEMIO_BASE + 0xa)
+#define _SDSPI_WRITE_ENABLE (_MEMIO_BASE + 0x1)
+#define _SDSPI_DIVIDER      (_MEMIO_BASE + 0x3)
+#define _SDSPI_DATA_IN      (_MEMIO_BASE + 0x5)
+#define _SDSPI_DATA_OUT     (_MEMIO_BASE + 0x7)
+#define _SDSPI_READY        (_MEMIO_BASE + 0x9)
+#define _SDSPI_CHIP_SELECT  (_MEMIO_BASE + 0xb)
 #define _POST_CODE          (_MEMIO_BASE + 0xc)
 #define _RESET_TYPE         (_MEMIO_BASE + 0xd)
 #define _RESET_REQ          (_MEMIO_BASE + 0xd)
