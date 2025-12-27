@@ -50,10 +50,29 @@ extern void _fini (void);
 
 extern int main (int, char **, char **);
 
+static char *argv_storage[33];
+
+static int decode_cmdline(char **argv_out, int max_args)
+{
+    int argc = 0;
+    char *p = _config_data->cmdline;
+
+    while (*p != '\0' && argc < max_args) {
+        argv_out[argc++] = p;
+        while (*p != '\0')
+            p++;
+        p++;
+    }
+
+    return argc;
+}
+
 /* This is called from a tiny assembly stub.  */
 void __start1 (char *initial_stack)
 {
-  unsigned ix;
+  int ix;
+  int argc = 0;
+  char **argv = NULL;
 
   _set_postcode(5);
 
@@ -87,7 +106,27 @@ void __start1 (char *initial_stack)
 
   _set_postcode(10);
 
-  ix = main (0, NULL, NULL);
+
+#ifdef ROM
+  argv_storage[0] = "loader.bin";
+  argc = 1;
+#else
+  if (_loader_data && _loader_data->loaded_path[0] != '\0') {
+    argv_storage[0] = _loader_data->loaded_path;
+    argc = 1;
+  } else {
+    argv_storage[0] = "nextp8.bin";
+    argc = 1;
+  }
+#endif
+
+  if (_config_data && _config_data->cmdline[0] != '\0')
+    argc += decode_cmdline(&argv_storage[argc], sizeof(argv_storage)/sizeof(argv_storage[0]) - argc);
+
+  if (argc > 0)
+    argv = argv_storage;
+
+  ix = main (argc, argv, NULL);
 
   _set_postcode(62);
 

@@ -35,9 +35,23 @@ void __attribute__ ((noreturn)) _exit (int code)
   else
     {
 #ifdef ROM
-      _warm_reset();
+      if (_config_data && _config_data->exit_action == 1)
+        {
+          _shutdown();
+        }
+      else
+        {
+          _warm_reset();
+        }
 #else
-      _restart();
+      if (_config_data && _config_data->exit_action == 1)
+        {
+          _shutdown();
+        }
+      else
+        {
+          _restart();
+        }
 #endif
     }
 }

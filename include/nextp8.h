@@ -144,7 +144,8 @@ struct _loader_data {
     uint32_t loader_timestamp;
     uintptr_t entry_point;
     unsigned reset_type;
-};
+    char loaded_path[128];
+} __attribute__((packed));
 
 #define LOADER_MAGIC 0x12345432
 
@@ -159,7 +160,9 @@ struct _config_data {
     uint8_t reserved1[9];          // +7..15 RESERVED
     uint8_t userfile_selected[16]; // +16..31 userfile selection status (0=not selected, 1=selected)
     char core_path[32];            // +32..63 null-terminated path of the core
-    uint8_t reserved2[192];        // +64..255 reserved for future use
+    uint8_t reserved2[32];         // +64..95 reserved for future use
+    char cmdline[159];             // +96..254 pre-parsed command line arguments
+    uint8_t exit_action;           // +255 exit action (0=restart, 1=shutdown)
 } __attribute__((packed));
 
 extern uint32_t _bsp_timestamp;
@@ -178,16 +181,19 @@ extern void _display_string_centered(int x, int y, const char *s);
 extern void _flip(void);
 extern uint32_t get_bsp_version(void);
 extern void __attribute__ ((noreturn)) _halt(void);
+#ifndef ROM
+extern void __attribute__ ((noreturn)) _restart(void);
+#endif
 extern void _uart_write(const char *buf, size_t count);
 extern void _wait_for_any_key(void);
 extern void __attribute__ ((noreturn)) _warm_reset(void);
+extern void __attribute__ ((noreturn)) _shutdown(void);
 #ifdef ROM
 extern void __attribute__ ((noreturn)) _fatal_error(const char *message);
 extern void _recoverable_error(const char *message);
 #else
 extern void __attribute__ ((noreturn)) _fatal_error(const char *format, ...);
 extern void _recoverable_error(const char *format, ...);
-extern void __attribute__ ((noreturn)) _restart(void);
 extern void _show_message(const char *format, ...);
 #endif
 
