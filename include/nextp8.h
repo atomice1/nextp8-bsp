@@ -55,6 +55,14 @@
 #define _JOYSTICK1          (_MEMIO_BASE + 0x61)
 #define _DEBUG_REG_HI       (_MEMIO_BASE + 0x62)
 #define _DEBUG_REG_LO       (_MEMIO_BASE + 0x64)
+#define _JOYSTICK0_LATCHED  (_MEMIO_BASE + 0x66)
+#define _JOYSTICK1_LATCHED  (_MEMIO_BASE + 0x67)
+#define _MOUSE_X            (_MEMIO_BASE + 0x68)
+#define _MOUSE_Y            (_MEMIO_BASE + 0x69)
+#define _MOUSE_Z            (_MEMIO_BASE + 0x6a)
+#define _MOUSE_BUTTONS      (_MEMIO_BASE + 0x6c)
+#define _MOUSE_BUTTONS_LATCHED (_MEMIO_BASE + 0x6d)
+#define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 
 #define _P8AUDIO_BASE          0x800100
 #define _P8AUDIO_VERSION       (_P8AUDIO_BASE + 0x0)

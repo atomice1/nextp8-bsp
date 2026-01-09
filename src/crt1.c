@@ -106,7 +106,6 @@ void __start1 (char *initial_stack)
 
   _set_postcode(10);
 
-
 #ifdef ROM
   argv_storage[0] = "loader.bin";
   argc = 1;
