@@ -25,7 +25,8 @@ struct dirent {
 	uint16_t	d_date;
 	uint16_t	d_time;
 	uint8_t	    d_attrib;
-	char    	d_name[12 + 1];
+	char    	d_altname[12 + 1];
+	char    	d_name[255 + 1];
 };
 
 #endif
