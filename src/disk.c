@@ -12,8 +12,12 @@
  * they apply.
  */
 
+#ifndef ROM
 #include <stdio.h>
+#endif
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "ff.h"
 #include "diskio.h"
@@ -26,6 +30,56 @@ extern void _rom_fatal_error(const char *fn, int res);
 
 static struct _sd_block_device sd[2];
 static bool sd_initialized[2];
+
+#ifndef ROM
+#define CACHE_NUM_WAYS      4
+#define CACHE_NUM_SETS      8
+#define CACHE_NUM_BLOCKS    (CACHE_NUM_WAYS * CACHE_NUM_SETS)
+#define CACHE_SET_MASK      (CACHE_NUM_SETS - 1)
+
+struct cache_entry {
+    bool valid;
+    BYTE pdrv;
+    LBA_t sector;
+    BYTE *data;
+    unsigned int lru_counter;
+};
+
+static struct cache_entry cache[CACHE_NUM_SETS][CACHE_NUM_WAYS];
+static unsigned int global_lru_counter = 0;
+static bool cache_initialized = false;
+
+static bool cache_intialize(sd_size_t sector_size)
+{
+    bool alloc_success = true;
+    for (int set = 0; set < CACHE_NUM_SETS && alloc_success; set++) {
+        for (int way = 0; way < CACHE_NUM_WAYS && alloc_success; way++) {
+            cache[set][way].data = malloc(sector_size);
+            if (cache[set][way].data == NULL) {
+                alloc_success = false;
+            } else {
+                cache[set][way].valid = false;
+                cache[set][way].lru_counter = 0;
+            }
+        }
+    }
+
+    if (!alloc_success) {
+        for (int set = 0; set < CACHE_NUM_SETS; set++) {
+            for (int way = 0; way < CACHE_NUM_WAYS; way++) {
+                if (cache[set][way].data != NULL) {
+                    free(cache[set][way].data);
+                    cache[set][way].data = NULL;
+                }
+            }
+        }
+        return false;
+    }
+
+    cache_initialized = true;
+    return true;
+}
+#endif
 
 DSTATUS disk_status (
   BYTE pdrv     /* [IN] Physical drive number */
@@ -47,6 +101,13 @@ DSTATUS disk_initialize (
         int res = _sd_init(&sd[pdrv]);
         if (res == SD_BLOCK_DEVICE_OK) {
             sd_initialized[pdrv] = true;
+#ifndef ROM
+            if (!cache_initialized) {
+                sd_size_t sector_size = _sd_get_read_size(&sd[pdrv]);
+                if (!cache_intialize(sector_size))
+                    return STA_NOINIT;
+            }
+#endif
         } else {
             const char *error_message = NULL;
             switch (res) {
@@ -76,6 +137,62 @@ DSTATUS disk_initialize (
     return RES_OK;
 }
 
+#ifndef ROM
+static DRESULT disk_read_sector (
+  BYTE pdrv,     /* [IN] Physical drive number */
+  BYTE* buff,    /* [OUT] Pointer to the read data buffer (sector_size bytes) */
+  LBA_t sector   /* [IN] Sector number */
+)
+{
+    sd_size_t sector_size = _sd_get_read_size(&sd[pdrv]);
+
+    if (!cache_initialized)
+        return RES_ERROR;
+
+    unsigned int set = sector & CACHE_SET_MASK;
+
+    for (int way = 0; way < CACHE_NUM_WAYS; way++) {
+        struct cache_entry *entry = &cache[set][way];
+        if (entry->valid && entry->pdrv == pdrv && entry->sector == sector) {
+            memcpy(buff, entry->data, sector_size);
+            entry->lru_counter = ++global_lru_counter;
+            return RES_OK;
+        }
+    }
+
+    int lru_way = 0;
+    unsigned int min_lru = cache[set][0].lru_counter;
+    for (int way = 1; way < CACHE_NUM_WAYS; way++) {
+        if (!cache[set][way].valid) {
+            lru_way = way;
+            break;
+        }
+        if (cache[set][way].lru_counter < min_lru) {
+            min_lru = cache[set][way].lru_counter;
+            lru_way = way;
+        }
+    }
+
+    struct cache_entry *entry = &cache[set][lru_way];
+    int res = _sd_read(&sd[pdrv], entry->data,
+                       (sd_size_t)sector * sector_size,
+                       (sd_size_t)sector_size);
+    if (res != SD_BLOCK_DEVICE_OK) {
+        fprintf(stderr, "_sd_read: error %d\n", res);
+        return RES_ERROR;
+    }
+
+    entry->valid = true;
+    entry->pdrv = pdrv;
+    entry->sector = sector;
+    entry->lru_counter = ++global_lru_counter;
+
+    memcpy(buff, entry->data, sector_size);
+
+    return RES_OK;
+}
+#endif
+
 DRESULT disk_read (
   BYTE pdrv,     /* [IN] Physical drive number */
   BYTE* buff,    /* [OUT] Pointer to the read data buffer */
@@ -85,19 +202,32 @@ DRESULT disk_read (
 {
     if (pdrv < 0 || pdrv > 1 || !sd_initialized[pdrv])
         return RES_NOTRDY;
+
     sd_size_t sector_size = _sd_get_read_size(&sd[pdrv]);
-    int res = _sd_read(&sd[pdrv], buff,
-                       (sd_size_t)sector * sector_size,
-                       (sd_size_t)count * sector_size);
-    if (res != SD_BLOCK_DEVICE_OK) {
+
 #ifdef ROM
+    int res = _sd_read(&sd[pdrv], buff,
+                           (sd_size_t)sector * sector_size,
+                           (sd_size_t)count * sector_size);
+    if (res != SD_BLOCK_DEVICE_OK) {
         _rom_fatal_error("_sd_read", res);
-#else
-        fprintf(stderr, "_sd_read: error %d\n", res);
-#endif
         return RES_ERROR;
     }
     return RES_OK;
+#else
+    if (count > 1) {
+        int res = _sd_read(&sd[pdrv], buff,
+                           (sd_size_t)sector * sector_size,
+                           (sd_size_t)count * sector_size);
+        if (res != SD_BLOCK_DEVICE_OK) {
+            fprintf(stderr, "_sd_read: error %d\n", res);
+            return RES_ERROR;
+        }
+        return RES_OK;
+    }
+
+    return disk_read_sector(pdrv, buff, sector);
+#endif
 }
 
 DRESULT disk_write (

@@ -64,6 +64,19 @@ all: $(CRT0) $(NEXTP8_BSP)
 $(patsubst %,%.o,${ISRS}) : isrs.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ \
 	  -DL_$(patsubst %.o,%,$@)
+
+fatfs.o: $(SRCDIR)/fatfs.c $(SRCDIR)/../include/sys/dirent.h $(SRCDIR)/ff16/source/ff.h $(SRCDIR)/ff16/source/ffconf.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+ff16/source/ff.o: $(SRCDIR)/ff16/source/ff.c $(SRCDIR)/ff16/source/ff.h $(SRCDIR)/ff16/source/ffconf.h $(SRCDIR)/ff16/source/diskio.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+ff16/source/ffunicode.o: $(SRCDIR)/ff16/source/ffunicode.c $(SRCDIR)/ff16/source/ff.h $(SRCDIR)/ff16/source/ffconf.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+ff16/source/ffsystem.o: $(SRCDIR)/ff16/source/ffsystem.c $(SRCDIR)/ff16/source/ff.h $(SRCDIR)/ff16/source/ffconf.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
 $(NEXTP8_BSP): $(OBJS) $(IO_OBJS) $(FATFS_SPI_OBJS) $(ISR_OBJS)
 	${AR} ${ARFLAGS} $@ $^
 	${RANLIB} $@
