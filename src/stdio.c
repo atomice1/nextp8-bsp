@@ -30,7 +30,10 @@ static ssize_t stdio_read (struct _file *file, void *buf, size_t count)
 static void append_to_last_error(const void *buf, size_t count)
 {
   size_t oldlen = (last_error != NULL) ? strlen(last_error) : 0;
-  last_error = realloc(last_error, oldlen + count + 1);
+  char *new_last_error = realloc(last_error, oldlen + count + 1);
+  if (!new_last_error)
+    return;
+  last_error = new_last_error;
   char last = (oldlen > 0) ? last_error[oldlen - 1] : '\n';
   const char *src = buf;
   char *dst = last_error + oldlen;
