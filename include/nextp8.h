@@ -30,6 +30,7 @@
 #define _RESET_REQ          (_MEMIO_BASE + 0xd)
 #define _VFRONT             (_MEMIO_BASE + 0xe)
 #define _VFRONTREQ          (_MEMIO_BASE + 0xe)
+#define _VBLANK_INTR_CTRL   (_MEMIO_BASE + 0xf)
 #define _OVERLAY_CONTROL    (_MEMIO_BASE + 0x10)
 #define _PARAMS             (_MEMIO_BASE + 0x12)
 #define _BUILD_TIMESTAMP_HI (_MEMIO_BASE + 0x14)
@@ -38,19 +39,22 @@
 #define _HW_VERSION_LO      (_MEMIO_BASE + 0x1a)
 #define _I2C_DATA           (_MEMIO_BASE + 0x21)
 #define _I2C_CTRL           (_MEMIO_BASE + 0x23)
+#define _I2C_STATUS         (_MEMIO_BASE + 0x23)
 #define _UART_CTRL          (_MEMIO_BASE + 0x24)
 #define _UART_DATA          (_MEMIO_BASE + 0x25)
 #define _UART_BAUD_DIV      (_MEMIO_BASE + 0x26)
 #define _ESP_CTRL           (_MEMIO_BASE + 0x28)
 #define _ESP_DATA           (_MEMIO_BASE + 0x29)
 #define _ESP_BAUD_DIV       (_MEMIO_BASE + 0x2a)
-#define _UTIMER_1MHZ_HI     (_MEMIO_BASE + 0x2E)
-#define _UTIMER_1MHZ_LO     (_MEMIO_BASE + 0x30)
-#define _UTIMER_1KHZ_HI     (_MEMIO_BASE + 0x32)
-#define _UTIMER_1KHZ_LO     (_MEMIO_BASE + 0x34)
+#define _UTIMER_1MHZ        (_MEMIO_BASE + 0x2E)
+#define _UTIMER_1MHZ_6348   (_MEMIO_BASE + 0x2E)
+#define _UTIMER_1MHZ_4732   (_MEMIO_BASE + 0x30)
+#define _UTIMER_1MHZ_3116   (_MEMIO_BASE + 0x32)
+#define _UTIMER_1MHZ_1500   (_MEMIO_BASE + 0x34)
 #define _DA_CONTROL         (_MEMIO_BASE + 0x36)
 #define _DA_PERIOD          (_MEMIO_BASE + 0x38)
 #define _KEYBOARD_MATRIX    (_MEMIO_BASE + 0x40)
+#define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 #define _JOYSTICK0          (_MEMIO_BASE + 0x60)
 #define _JOYSTICK1          (_MEMIO_BASE + 0x61)
 #define _DEBUG_REG_HI       (_MEMIO_BASE + 0x62)
@@ -58,10 +62,11 @@
 #define _JOYSTICK0_LATCHED  (_MEMIO_BASE + 0x66)
 #define _JOYSTICK1_LATCHED  (_MEMIO_BASE + 0x67)
 #define _MOUSE_X            (_MEMIO_BASE + 0x68)
-#define _MOUSE_Y            (_MEMIO_BASE + 0x69)
-#define _MOUSE_Z            (_MEMIO_BASE + 0x6a)
-#define _MOUSE_BUTTONS      (_MEMIO_BASE + 0x6c)
-#define _MOUSE_BUTTONS_LATCHED (_MEMIO_BASE + 0x6d)
+#define _MOUSE_Y            (_MEMIO_BASE + 0x6a)
+#define _MOUSE_Z            (_MEMIO_BASE + 0x6c)
+#define _MOUSE_BUTTONS      (_MEMIO_BASE + 0x6e)
+#define _MOUSE_BUTTONS_LATCHED (_MEMIO_BASE + 0x6f)
+#define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 #define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 
 #define _P8AUDIO_BASE          0x800100
@@ -201,6 +206,9 @@ extern void __attribute__ ((noreturn)) _fatal_error(const char *message);
 extern void _recoverable_error(const char *message);
 #else
 extern void __attribute__ ((noreturn)) _fatal_error(const char *format, ...);
+extern int _read_rtc(unsigned *date, unsigned *month, unsigned *year,
+                     unsigned *hours, unsigned *minutes, unsigned *seconds,
+                     unsigned *wday);
 extern void _recoverable_error(const char *format, ...);
 extern void _show_message(const char *format, ...);
 #endif

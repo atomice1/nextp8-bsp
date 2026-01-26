@@ -1,7 +1,5 @@
 /*
- * io-gettimeofday.c --
- *
- * Copyright (c) 2006 CodeSourcery Inc
+ * Copyright (C) 2026 Chris January
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided
@@ -14,26 +12,14 @@
  * they apply.
  */
 
-#include <stdint.h>
-#include <sys/time.h>
+#include <time.h>
+#include "mmio.h"
 #include "nextp8.h"
 
-/*
- * gettimeofday -- get the current time
- * input parameters:
- *   0 : timeval ptr
- * output parameters:
- *   0 : result
- *   1 : errno
- */
-
-int gettimeofday (struct timeval *tv, void *tzvp)
+int nanosleep(const struct timespec *duration, struct timespec *remaining)
 {
-  struct timespec ts;
-  int res = clock_gettime(CLOCK_REALTIME, &ts);
-  if (res != 0)
-    return res;
-  tv->tv_sec = ts.tv_sec;
-  tv->tv_usec = ts.tv_nsec / 1000;
-  return 0;
+    uint64_t duration_us = duration->tv_sec * UINT64_C(1000000) + duration->tv_nsec / UINT64_C(1000);
+    uint64_t start = MMIO_REG64(_UTIMER_1MHZ);
+    while ((MMIO_REG64(_UTIMER_1MHZ) - start) < duration_us) { }
+    return 0;
 }

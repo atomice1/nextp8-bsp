@@ -1,7 +1,5 @@
 /*
- * io-gettimeofday.c --
- *
- * Copyright (c) 2006 CodeSourcery Inc
+ * Copyright (C) 2026 Chris January
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided
@@ -14,26 +12,23 @@
  * they apply.
  */
 
-#include <stdint.h>
-#include <sys/time.h>
-#include "nextp8.h"
+#include <errno.h>
+#include <time.h>
 
-/*
- * gettimeofday -- get the current time
- * input parameters:
- *   0 : timeval ptr
- * output parameters:
- *   0 : result
- *   1 : errno
- */
-
-int gettimeofday (struct timeval *tv, void *tzvp)
+int clock_getres(clockid_t clockid, struct timespec *res)
 {
-  struct timespec ts;
-  int res = clock_gettime(CLOCK_REALTIME, &ts);
-  if (res != 0)
-    return res;
-  tv->tv_sec = ts.tv_sec;
-  tv->tv_usec = ts.tv_nsec / 1000;
-  return 0;
+    switch (clockid) {
+#ifndef ROM
+    case CLOCK_REALTIME:
+#endif
+    case CLOCK_MONOTONIC:
+        if (res) {
+            res->tv_sec = 0;
+            res->tv_nsec = 1000; /* 1 microsecond resolution */
+        }
+        return 0;
+    default:
+        errno = EINVAL;
+        return -1;
+    }
 }

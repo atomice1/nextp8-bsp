@@ -286,5 +286,24 @@ DRESULT disk_ioctl (
 
 DWORD get_fattime (void)
 {
+#ifdef ROM
     return 0;
+#else
+    unsigned date, month, year, hours, minutes, seconds, wday;
+    int res = _read_rtc(&date, &month, &year, &hours, &minutes, &seconds, &wday);
+    if (res != 0) {
+        date = 1;
+        month = 1;
+        year = 1980;
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
+    }
+    return ((DWORD)(year - 1980) << 25) |
+            ((DWORD)month << 21) |
+            ((DWORD)date << 16) |
+            ((DWORD)hours << 11) |
+            ((DWORD)minutes << 5) |
+            ((DWORD)(seconds / 2));
+#endif
 }

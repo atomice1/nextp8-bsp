@@ -15,19 +15,15 @@
 #include <stdint.h>
 #include <sys/times.h>
 #include <time.h>
-#include "nextp8.h"
 #include "mmio.h"
+#include "nextp8.h"
 
 clock_t times(struct tms *buf)
 {
-    uint32_t utimer;
-    if (CLOCKS_PER_SEC == 1000)
-        utimer = MMIO_REG32(_UTIMER_1KHZ_HI);
-    else
-        utimer = MMIO_REG32(_UTIMER_1MHZ_HI);
-    buf->tms_utime = utimer;
-    buf->tms_stime = utimer;
-    buf->tms_cutime = utimer;
-    buf->tms_cstime = utimer;
+    uint64_t now = MMIO_REG64(_UTIMER_1MHZ);
+    buf->tms_utime = now / (UINT64_C(1000000) / CLOCKS_PER_SEC);
+    buf->tms_stime = now / (UINT64_C(1000000) / CLOCKS_PER_SEC);
+    buf->tms_cutime = now / (UINT64_C(1000000) / CLOCKS_PER_SEC);
+    buf->tms_cstime = now / (UINT64_C(1000000) / CLOCKS_PER_SEC);
     return 0;
 }

@@ -13,13 +13,14 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
-#include "nextp8.h"
 #include "mmio.h"
+#include "nextp8.h"
 
 int usleep(useconds_t usec)
 {
-    uint32_t start = MMIO_REG32(_UTIMER_1MHZ_HI);
-    while (MMIO_REG32(_UTIMER_1MHZ_HI) - start < usec) { }
+    uint64_t start = MMIO_REG64(_UTIMER_1MHZ);
+    while ((MMIO_REG64(_UTIMER_1MHZ) - start) < usec) { }
     return 0;
 }

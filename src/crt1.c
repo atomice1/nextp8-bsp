@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "nextp8.h"
 #include "mmio.h"
 #include "version_macros.h"

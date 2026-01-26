@@ -150,6 +150,7 @@
 #endif
 #include <stdlib.h>
 #include <sys/types.h>
+#include "mmio.h"
 #include "nextp8.h"
 
 #if ROM
@@ -158,23 +159,20 @@
 #define debug_if(x, ...) do { if (x) fprintf(stderr, __VA_ARGS__); } while (0)
 #endif
 
-static uint32_t get_utimer_1khz(void)
+static uint64_t get_utimer_1mhz(void)
 {
-    return *(uint32_t *)_UTIMER_1KHZ_HI;
+    return MMIO_REG64(_UTIMER_1MHZ);
 }
 
-static uint32_t get_elapsed(uint32_t start)
+static uint64_t get_elapsed(uint64_t start)
 {
-    uint32_t now = get_utimer_1khz();
-    if (now < start)
-        return ((UINT32_MAX - start) + 1) + now;
-    else
-        return now - start;
+    uint64_t now = get_utimer_1mhz();
+    return (now - start) / UINT64_C(1000);
 }
 
 static void sleep_for(uint32_t ms)
 {
-    uint32_t start = get_utimer_1khz();
+    uint64_t start = get_utimer_1mhz();
     while (get_elapsed(start) < ms) { }
 }
 
@@ -431,7 +429,7 @@ int _sd_initialise_card(struct _sd_block_device *this)
      * "0" indicates completion of initialization. The host repeatedly issues ACMD41 until
      * this bit is set to "0".
      */
-    uint32_t spi_timer = get_utimer_1khz();
+    uint64_t spi_timer = get_utimer_1mhz();
     do {
         status = _sd_cmd(this, ACMD41_SD_SEND_OP_COND, arg, 1, &response);
     } while ((response & R1_IDLE_STATE) && (get_elapsed(spi_timer) < SD_COMMAND_TIMEOUT));
@@ -1198,7 +1196,7 @@ sd_size_t _sd_sectors(struct _sd_block_device *this)
 // SPI function to wait till chip is ready and sends start token
 bool _sd_wait_token(struct _sd_block_device *this, uint8_t token)
 {
-    uint32_t spi_timer = get_utimer_1khz();
+    uint64_t spi_timer = get_utimer_1mhz();
 
     do {
         if (token == _spi_write(SPI_FILL_CHAR))
@@ -1213,7 +1211,7 @@ bool _sd_wait_token(struct _sd_block_device *this, uint8_t token)
 bool _sd_wait_ready(struct _sd_block_device *this, uint32_t timeout)
 {
     uint8_t response;
-    uint32_t spi_timer = get_utimer_1khz();
+    uint64_t spi_timer = get_utimer_1mhz();
     do {
         response = _spi_write(SPI_FILL_CHAR);
         if (response == 0xFF)

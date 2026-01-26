@@ -20,5 +20,6 @@
 #define MMIO_REG8(addr)     (*(volatile uint8_t *)(addr))
 #define MMIO_REG16(addr)    (*(volatile uint16_t *)(addr))
 #define MMIO_REG32(addr)    (*(volatile uint32_t *)(addr))
+#define MMIO_REG64(addr)    (*(volatile uint64_t *)(addr))
 
 #endif

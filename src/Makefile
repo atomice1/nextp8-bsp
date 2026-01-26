@@ -20,7 +20,7 @@ RANLIB := ranlib
 ROM ?= 0
 VERSION ?= 0
 
-CFLAGS = -g -DVERSION=$(VERSION)
+CFLAGS = -g -DVERSION=$(VERSION) -D_POSIX_TIMERS=1 -D_POSIX_MONOTONIC_CLOCK=1
 
 ifeq ($(ROM),1)
 CFLAGS += -Os -DROM=1
@@ -40,7 +40,8 @@ OBJS=	isv.o crt1.o getpid.o kill.o sbrk.o \
 		kbd.o error.o warm_reset.o time.o \
 		exit.o gettimeofday.o version.o \
 		format_version.o uart.o restart.o \
-		shutdown.o
+		shutdown.o clock_getres.o clock_gettime.o \
+		nanosleep.o sync_time.o rtc.o
 ISRS=	other_interrupt access_error address_error \
 	illegal_instruction divide_by_zero privilege_violation \
 	trace unimplemented_opcode breakpoint_debug_interrupt \
