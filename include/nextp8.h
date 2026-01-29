@@ -54,7 +54,6 @@
 #define _DA_CONTROL         (_MEMIO_BASE + 0x36)
 #define _DA_PERIOD          (_MEMIO_BASE + 0x38)
 #define _KEYBOARD_MATRIX    (_MEMIO_BASE + 0x40)
-#define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 #define _JOYSTICK0          (_MEMIO_BASE + 0x60)
 #define _JOYSTICK1          (_MEMIO_BASE + 0x61)
 #define _DEBUG_REG_HI       (_MEMIO_BASE + 0x62)
@@ -66,7 +65,6 @@
 #define _MOUSE_Z            (_MEMIO_BASE + 0x6c)
 #define _MOUSE_BUTTONS      (_MEMIO_BASE + 0x6e)
 #define _MOUSE_BUTTONS_LATCHED (_MEMIO_BASE + 0x6f)
-#define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 #define _KEYBOARD_MATRIX_LATCHED (_MEMIO_BASE + 0x80)
 
 #define _P8AUDIO_BASE          0x800100
