@@ -186,8 +186,6 @@ void __attribute__ ((weak)) hardware_init_hook (void)
   MMIO_REG8(_P8AUDIO_HWFX41)         = 0x00;
   MMIO_REG8(_P8AUDIO_HWFX42)         = 0x00;
   MMIO_REG8(_P8AUDIO_HWFX43)         = 0x00;
-  MMIO_REG16(_P8AUDIO_NOTE_ATK_TIME) = 0x0010;
-  MMIO_REG16(_P8AUDIO_NOTE_REL_TIME) = 0x0010;
   MMIO_REG16(_P8AUDIO_SFX_CMD)       = 0xffff;
   MMIO_REG16(_P8AUDIO_SFX_LEN)       = 0x0000;
   MMIO_REG16(_P8AUDIO_MUSIC_CMD)     = 0xffff;
