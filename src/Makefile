@@ -41,7 +41,7 @@ OBJS=	isv.o crt1.o getpid.o kill.o sbrk.o \
 		exit.o gettimeofday.o version.o \
 		format_version.o uart.o restart.o \
 		shutdown.o clock_getres.o clock_gettime.o \
-		nanosleep.o sync_time.o rtc.o
+		nanosleep.o sync_time.o rtc.o esp.o
 ISRS=	other_interrupt access_error address_error \
 	illegal_instruction divide_by_zero privilege_violation \
 	trace unimplemented_opcode breakpoint_debug_interrupt \

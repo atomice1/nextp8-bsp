@@ -30,8 +30,8 @@ lib-rom:
 
 .PHONY: clean
 clean:
-	cd build/ram && $(MAKE) -f ../../src/Makefile clean
-	cd build/rom && $(MAKE) -f ../../src/Makefile clean
+	if [ -d build/ram ]; then cd build/ram && $(MAKE) -f ../../src/Makefile clean; fi
+	if [ -d build/rom ]; then cd build/rom && $(MAKE) -f ../../src/Makefile clean; fi
 	rm -f lib/libnextp8.a
 	rm -f lib/libnextp8-rom.a
 
