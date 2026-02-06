@@ -29,7 +29,7 @@ int clock_gettime(clockid_t clockid, struct timespec *ts)
     case CLOCK_REALTIME:
     retry:
         microseconds = MMIO_REG64(_UTIMER_1MHZ) - _boot_time_monotonic_us;
-        if (_boot_time_monotonic_us == 0 || microseconds > UINT64_C(60000000)) {
+        if (_boot_time_monotonic_us == 0) {
             int res = _sync_time();
             if (res != 0)
                 return -1;
