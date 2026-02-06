@@ -249,6 +249,19 @@ DRESULT disk_write (
 #endif
         return RES_ERROR;
     }
+#ifndef ROM
+    /* Update cache entries if present */
+    for (unsigned i = 0; i < count; i++) {
+        unsigned int set = (sector + i) & CACHE_SET_MASK;
+        for (int way = 0; way < CACHE_NUM_WAYS; way++) {
+            struct cache_entry *entry = &cache[set][way];
+            if (entry->valid && entry->pdrv == pdrv && entry->sector == sector + i) {
+                memcpy(entry->data, buff + i * sector_size, sector_size);
+                entry->lru_counter = ++global_lru_counter;
+            }
+        }
+    }
+#endif
     return RES_OK;
 }
 
@@ -262,7 +275,8 @@ DRESULT disk_ioctl (
         return RES_NOTRDY;
     switch (cmd) {
     case CTRL_SYNC:
-        return RES_PARERR;
+        /* No write cache so nothing to sync */
+        return RES_OK;
     case GET_SECTOR_COUNT:
         *(LBA_t *)buff = _sd_size(&sd[pdrv]) / _sd_get_read_size(&sd[pdrv]);
         return RES_OK;
