@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "ff.h"
 #include "diskio.h"
@@ -303,21 +304,15 @@ DWORD get_fattime (void)
 #ifdef ROM
     return 0;
 #else
-    unsigned date, month, year, hours, minutes, seconds, wday;
-    int res = _read_rtc(&date, &month, &year, &hours, &minutes, &seconds, &wday);
-    if (res != 0) {
-        date = 1;
-        month = 1;
-        year = 1980;
-        hours = 0;
-        minutes = 0;
-        seconds = 0;
-    }
-    return ((DWORD)(year - 1980) << 25) |
-            ((DWORD)month << 21) |
-            ((DWORD)date << 16) |
-            ((DWORD)hours << 11) |
-            ((DWORD)minutes << 5) |
-            ((DWORD)(seconds / 2));
+    time_t t = time(NULL);
+    if (t == (time_t)-1)
+        return (1 << 21) | (1 << 16); /* Jan 1, 1980 */;
+    struct tm *tm = localtime(&t);
+    return ((DWORD)(tm->tm_year - 80) << 25) |
+            ((DWORD)(tm->tm_mon + 1) << 21) |
+            ((DWORD)tm->tm_mday << 16) |
+            ((DWORD)tm->tm_hour << 11) |
+            ((DWORD)tm->tm_min << 5) |
+            ((DWORD)(tm->tm_sec / 2));
 #endif
 }

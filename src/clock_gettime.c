@@ -27,14 +27,12 @@ int clock_gettime(clockid_t clockid, struct timespec *ts)
     switch (clockid) {
 #ifndef ROM
     case CLOCK_REALTIME:
-    retry:
-        microseconds = MMIO_REG64(_UTIMER_1MHZ) - _boot_time_monotonic_us;
         if (_boot_time_monotonic_us == 0) {
             int res = _sync_time();
             if (res != 0)
                 return -1;
-            goto retry;
         }
+        microseconds = MMIO_REG64(_UTIMER_1MHZ) - _boot_time_monotonic_us;
         microseconds += _boot_time_realtime_s * UINT64_C(1000000);
         ts->tv_sec = microseconds / UINT64_C(1000000);
         ts->tv_nsec = (microseconds % UINT64_C(1000000)) * UINT64_C(1000);

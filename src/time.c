@@ -19,6 +19,12 @@
 #include <sys/time.h>
 #include <errno.h>
 #include "io.h"
+#include "mmio.h"
+#include "nextp8.h"
+
+extern time_t _boot_time_realtime_s;
+extern uint64_t _boot_time_monotonic_us;
+extern int _sync_time(void);
 
 /*
  * time -- get the current time
@@ -31,11 +37,15 @@
 
 time_t time (time_t *t)
 {
-  struct timeval tv;
-
-  if (gettimeofday (&tv, NULL))
-    return -1;
-  if (t)
-    *t = tv.tv_sec;
-  return tv.tv_sec;
+  if (_boot_time_monotonic_us == 0) {
+      int res = _sync_time();
+      if (res != 0)
+          return -1;
+  }
+  uint64_t microseconds = MMIO_REG64(_UTIMER_1MHZ) - _boot_time_monotonic_us;
+  microseconds += _boot_time_realtime_s * UINT64_C(1000000);
+  time_t seconds = microseconds / UINT64_C(1000000);
+  if (seconds)
+    *t = seconds;
+  return seconds;
 }
