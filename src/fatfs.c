@@ -258,7 +258,7 @@ struct dirent *_fatfs_readdir(DIR *dirp)
 
 int _fatfs_rename (const char *oldpath, const char *newpath)
 {
-#ifdef FF_FS_READONLY
+#ifdef ROM
   errno = EROFS;
   return -1;
 #else
