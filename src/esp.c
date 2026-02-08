@@ -5,6 +5,7 @@
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include "nextp8.h"
@@ -55,7 +56,8 @@ int _esp_write_byte(unsigned char byte)
 /* Read a single byte from ESP8266 UART */
 int _esp_read_byte(unsigned char *byte, unsigned timeout_us)
 {
-    unsigned start_time = MMIO_REG32(_UTIMER_1MHZ);
+    uint64_t start_time = MMIO_REG64(_UTIMER_1MHZ);
+    unsigned loop_count = 0;
 
     /* Wait for data ready (bit 1) */
     while (1) {
@@ -71,11 +73,13 @@ int _esp_read_byte(unsigned char *byte, unsigned timeout_us)
             return 0;
         }
 
-        unsigned elapsed = MMIO_REG32(_UTIMER_1MHZ) - start_time;
+        uint64_t elapsed = MMIO_REG64(_UTIMER_1MHZ) - start_time;
         if (elapsed >= timeout_us) {
             errno = ETIMEDOUT;
             return -1;
         }
+
+        loop_count++;
     }
 }
 
@@ -95,11 +99,16 @@ int _esp_read_line(char *buffer, size_t buf_size, unsigned timeout_us)
 {
     size_t pos = 0;
     unsigned char ch;
-    unsigned start_time = MMIO_REG32(_UTIMER_1MHZ);
+    uint64_t start_time = MMIO_REG64(_UTIMER_1MHZ);
 
     while (pos < buf_size - 1) {
-        unsigned elapsed = MMIO_REG32(_UTIMER_1MHZ) - start_time;
-        if (_esp_read_byte(&ch, timeout_us - elapsed) < 0) {
+        uint64_t elapsed = MMIO_REG64(_UTIMER_1MHZ) - start_time;
+        if (elapsed >= timeout_us) {
+            buffer[pos] = '\0';
+            errno = ETIMEDOUT;
+            return -1;
+        }
+        if (_esp_read_byte(&ch, timeout_us - (unsigned)elapsed) < 0) {
             buffer[pos] = '\0';
             return -1;
         }
@@ -136,10 +145,10 @@ int _esp_send_at_command(const char *cmd, const char *expected_response, unsigne
     }
 
     /* Read response lines until we find the expected response or timeout */
-    unsigned start_time = MMIO_REG32(_UTIMER_1MHZ);
+    uint64_t start_time = MMIO_REG64(_UTIMER_1MHZ);
 
     while (1) {
-        unsigned elapsed = MMIO_REG32(_UTIMER_1MHZ) - start_time;
+        uint64_t elapsed = MMIO_REG64(_UTIMER_1MHZ) - start_time;
         if (elapsed >= timeout_us) {
             errno = ETIMEDOUT;
             return -1;
@@ -168,10 +177,10 @@ int _esp_wait_for_prompt(const char *prompt, unsigned timeout_us)
     size_t prompt_len = strlen(prompt);
     size_t pos = 0;
     unsigned char ch;
-    unsigned start_time = MMIO_REG32(_UTIMER_1MHZ);
+    uint64_t start_time = MMIO_REG64(_UTIMER_1MHZ);
 
     while (pos < prompt_len) {
-        unsigned elapsed = MMIO_REG32(_UTIMER_1MHZ) - start_time;
+        uint64_t elapsed = MMIO_REG64(_UTIMER_1MHZ) - start_time;
         if (_esp_read_byte(&ch, timeout_us - elapsed) < 0) {
             return -1;
         }
