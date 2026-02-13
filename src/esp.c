@@ -202,10 +202,8 @@ int _esp_init(void)
         return 0;
     }
 
-    /* Set baud rate to 115200 (assuming 33MHz system clock) */
-    /* Baud rate divisor = clock / (16 * baud_rate) */
-    /* For 115200: divisor = 33000000 / (16 * 115200) ≈ 17.9, use 18 */
-    MMIO_REG16(_ESP_BAUD_DIV) = 18;
+    /* Set baud rate to 115200 (assuming 11MHz system clock) */
+    MMIO_REG16(_ESP_BAUD_DIV) = 95;
 
     /* Test AT communication */
     if (_esp_send_at_command("AT", "OK", AT_TIMEOUT_US) < 0) {
