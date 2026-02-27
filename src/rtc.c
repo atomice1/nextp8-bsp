@@ -13,7 +13,6 @@
  */
 
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
 #include "mmio.h"
 #include "nextp8.h"
@@ -185,10 +184,6 @@ int _read_rtc(unsigned *date, unsigned *month, unsigned *year,
     data = MMIO_REG8(_I2C_DATA);
     *year = (data & 0x0F) + 10 * ((data >> 4) & 0x0F) + 2000;
 
-    char buf[100];
-    snprintf(buf, sizeof(buf), "RTC read: %02u/%02u/%04u %02u:%02u:%02u\n",
-             *date, *month, *year, *hours, *minutes, *seconds);
-    _uart_write(buf, strlen(buf));
     return 0;
 }
 #endif
