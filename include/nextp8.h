@@ -15,15 +15,20 @@
 #ifndef NEXTP8_H
 #define NEXTP8_H
 
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
+#endif
 
 #define _MEMIO_BASE         0x800000
 #define _PARAMS             (_MEMIO_BASE + 0x0)
+#define _BUILD_TIMESTAMP    (_MEMIO_BASE + 0x2)
 #define _BUILD_TIMESTAMP_HI (_MEMIO_BASE + 0x2)
 #define _BUILD_TIMESTAMP_LO (_MEMIO_BASE + 0x4)
+#define _HW_VERSION         (_MEMIO_BASE + 0x6)
 #define _HW_VERSION_HI      (_MEMIO_BASE + 0x6)
 #define _HW_VERSION_LO      (_MEMIO_BASE + 0x8)
+#define _DEBUG_REG          (_MEMIO_BASE + 0xa)
 #define _DEBUG_REG_HI       (_MEMIO_BASE + 0xa)
 #define _DEBUG_REG_LO       (_MEMIO_BASE + 0xc)
 #define _POST_CODE          (_MEMIO_BASE + 0xf)
@@ -54,6 +59,7 @@
 #define _I2C_CTRL           (_MEMIO_BASE + 0x3f)
 #define _I2C_STATUS         (_MEMIO_BASE + 0x3f)
 #define _DA_CONTROL         (_MEMIO_BASE + 0x40)
+#define _DA_ADDRESS         (_MEMIO_BASE + 0x40)
 #define _DA_PERIOD          (_MEMIO_BASE + 0x42)
 #define _JOYSTICK0          (_MEMIO_BASE + 0x49)
 #define _JOYSTICK1          (_MEMIO_BASE + 0x4b)
@@ -93,6 +99,7 @@
 #define _P8AUDIO_STAT54        (_P8AUDIO_BASE + 0x30)
 #define _P8AUDIO_STAT55        (_P8AUDIO_BASE + 0x32)
 #define _P8AUDIO_STAT56        (_P8AUDIO_BASE + 0x34)
+#define _P8AUDIO_STAT57        (_P8AUDIO_BASE + 0x36)
 
 #define _DA_MEMORY_BASE     0xc0c000
 #define _DA_MEMORY_SIZE     16384
@@ -113,8 +120,21 @@
 #define _FONT_CHAR_HEIGHT   5
 #define _FONT_LINE_HEIGHT   (_FONT_CHAR_HEIGHT + 1)
 
+/* UART Control/Status Bits */
+#define _UART_STATUS_DATA_READY    (1 << 0)    /* Read: Data available */
+#define _UART_STATUS_READY         (1 << 1)    /* Read: TX ready */
+#define _UART_STATUS_READ_ACK      (1 << 2)    /* Read: Read acknowledged */
+#define _UART_STATUS_WRITE_ACK     (1 << 3)    /* Read: Write acknowledged */
+#define _UART_CTRL_WRITE_STROBE    (1 << 0)    /* Write: Strobe to send */
+#define _UART_CTRL_READ_STROBE     (1 << 1)    /* Write: Strobe to read */
+
+/* UART Baud Rate Dividers (for 115200 baud with ~11 MHz clock) */
+#define _UART_BAUD_115200          95          /* 11000000 / (115200 * 16) ≈ 95 */
+
 #define _TUBE_STDOUT        0xfffffe
 #define _TUBE_STDERR        0xffffff
+
+#ifndef __ASSEMBLER__
 
 #define _CONFIG_BASE_ROM    0x7c000
 #ifdef ROM
@@ -216,4 +236,6 @@ extern void _recoverable_error(const char *format, ...);
 extern void _show_message(const char *format, ...);
 #endif
 
-#endif
+#endif /* __ASSEMBLER__ */
+
+#endif /* NEXTP8_H */
