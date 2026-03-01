@@ -14,7 +14,8 @@
  * they apply.
  */
 
-	#include "asm.h"	
+	#include "asm.h"
+	#include "nextp8.h"
 	.text
 
 #ifdef ROM
@@ -32,7 +33,7 @@ __reset:
 	.globl __start
 __start:
 	/* Update POST code */
-	move.l IMM(0x80000c),a0
+	move.l IMM(_POST_CODE),a0
 	moveb #4,a0@
 
 #ifdef ROM

@@ -82,7 +82,7 @@ $(NEXTP8_BSP): $(OBJS) $(IO_OBJS) $(FATFS_SPI_OBJS) $(ISR_OBJS)
 	${AR} ${ARFLAGS} $@ $^
 	${RANLIB} $@
 $(CRT0): crt0.S
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 .PHONE: clean
 clean:
