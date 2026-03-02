@@ -172,6 +172,7 @@ struct _loader_data {
     uint32_t loader_version;
     uint32_t loader_timestamp;
     uintptr_t entry_point;
+    uintptr_t memtop;
     unsigned reset_type;
     char loaded_path[128];
 } __attribute__((packed));
