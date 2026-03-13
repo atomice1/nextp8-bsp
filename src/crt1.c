@@ -177,19 +177,22 @@ void __attribute__ ((weak)) hardware_init_hook (void)
     {
       palette1[i] = i;
     }
+  MMIO_REG8(_P8AUDIO_HWFX40)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX41)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX42)         = 0x00;
+  MMIO_REG8(_P8AUDIO_HWFX43)         = 0x00;
+  /* Stop all SFX and music immediately before disabling audio.
+   * SFX stop-all:  bit15=1, ch=7 (all), idx=0x3f (stop) = 0xF1FF
+   * Music stop:    pat=0x3f (stop=-1) in din[12:7]: 0x3f<<7 = 0x1F80 */
+  MMIO_REG16(_P8AUDIO_MUSIC_FADE)    = 0x0000;
+  MMIO_REG16(_P8AUDIO_SFX_LEN)       = 0x0000;
+  MMIO_REG16(_P8AUDIO_SFX_CMD)       = 0xF1FF;
+  MMIO_REG16(_P8AUDIO_MUSIC_CMD)     = 0x1F80;
   MMIO_REG16(_P8AUDIO_CTRL)          = 0x0000;
   MMIO_REG16(_P8AUDIO_SFX_BASE_HI)   = 0x0000;
   MMIO_REG16(_P8AUDIO_SFX_BASE_LO)   = 0x0000;
   MMIO_REG16(_P8AUDIO_MUSIC_BASE_HI) = 0x0000;
   MMIO_REG16(_P8AUDIO_MUSIC_BASE_LO) = 0x0000;
-  MMIO_REG8(_P8AUDIO_HWFX40)         = 0x00;
-  MMIO_REG8(_P8AUDIO_HWFX41)         = 0x00;
-  MMIO_REG8(_P8AUDIO_HWFX42)         = 0x00;
-  MMIO_REG8(_P8AUDIO_HWFX43)         = 0x00;
-  MMIO_REG16(_P8AUDIO_SFX_CMD)       = 0xffff;
-  MMIO_REG16(_P8AUDIO_SFX_LEN)       = 0x0000;
-  MMIO_REG16(_P8AUDIO_MUSIC_CMD)     = 0xffff;
-  MMIO_REG16(_P8AUDIO_MUSIC_FADE)    = 0x0010;
 }
 
 void __attribute__ ((weak)) software_init_hook (void)
