@@ -9,11 +9,11 @@ __DYNAMIC  =  0;
 MEMORY
 {
   rom (rx) : ORIGIN = 0M, LENGTH = 32K
-  ram (rw) : ORIGIN = 960K, LENGTH = 65024
+  ram (rw) : ORIGIN = 32K, LENGTH = 98304
 }
 
 /* Place the stack at the end of memory, unless specified otherwise. */
-PROVIDE (__stack = 1048064);
+PROVIDE (__stack = 131072);
 
 SECTIONS
 {
