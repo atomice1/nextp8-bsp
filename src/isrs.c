@@ -27,12 +27,19 @@
 
 extern void _show_interrupt(const char *name, uintptr_t pc);
 
+/* 68010 short frames keep the saved PC at the 68000-compatible offset. */
+#if __mc68010 || __mc68020 || __mc68030 || __mc68040
+#define GROUP0_PC_OFFSET 2
+#else
+#define GROUP0_PC_OFFSET 10
+#endif
+
 /* Each ISR is a loop containing a halt instruction  */
 #define ISR_GROUP0_DEFINE(NAME)                                \
 void __attribute__((interrupt_handler)) NAME(void)             \
 {                                                              \
   void * sp = (char *)__builtin_frame_address(0) + 4;          \
-  uintptr_t pc = *(uint32_t *)((char *)sp + 10);               \
+  uintptr_t pc = *(uint32_t *)((char *)sp + GROUP0_PC_OFFSET);  \
   _show_interrupt(#NAME, pc);                                   \
 }                                                              \
 struct eat_trailing_semicolon

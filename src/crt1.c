@@ -141,7 +141,7 @@ void __start1 (char *initial_stack)
 /* Important: this function must not use any global variables in .data. */
 void __attribute__ ((weak)) hardware_init_hook (void)
 {
-#if __mc68020 || __mc68030 || __mc68040
+#if __mc68010 || __mc68020 || __mc68030 || __mc68040
   /* Set the VBR. */
   __asm__ __volatile__ ("movec.l %0,%/vbr" :: "r" (__interrupt_vector));
 #endif

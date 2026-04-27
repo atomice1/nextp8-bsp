@@ -19,7 +19,6 @@ SECTIONS
 {
   .isv :
   {
-    CREATE_OBJECT_SYMBOLS
     *(.interrupt_vector)
   } >rom
 

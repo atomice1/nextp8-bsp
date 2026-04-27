@@ -10,11 +10,15 @@ MEMORY
   ram (rwx) : ORIGIN = 128K, LENGTH = 3968K
 }
 
+/* Unused */
+PROVIDE (__stack = 0);
+
 SECTIONS
 {
   .text :
   {
     crt0-ram.o(.text)
+    *(.interrupt_vector)
     *(.text .text.*)
     *(.gnu.linkonce.t.*)
 
