@@ -167,6 +167,7 @@ void __attribute__ ((weak)) hardware_init_hook (void)
   MMIO_REG16(_DA_PERIOD)          = 0x0000;
   MMIO_REG16(_DEBUG_REG_HI)       = 0x0000;
   MMIO_REG16(_DEBUG_REG_LO)       = 0x0000;
+  MMIO_REG16(_KEYBOARD_EVENT_QUEUE_LO) = 0x00;
   volatile uint8_t *palette0 = (volatile uint8_t *)_PALETTE_BASE;
   for (int i = 0; i < 16; i++)
     {

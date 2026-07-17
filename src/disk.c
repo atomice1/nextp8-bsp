@@ -116,7 +116,7 @@ DSTATUS disk_initialize (
                 error_message = "SD card is missing or not connected.";
                 break;
             case SD_BLOCK_DEVICE_ERROR_UNUSABLE:
-                error_message =  "SD Card is unsable.";
+                error_message = "SD Card is unusable.";
                 break;
             case SD_BLOCK_DEVICE_ERROR_NO_RESPONSE:
                 error_message =  "No response from SD card.";

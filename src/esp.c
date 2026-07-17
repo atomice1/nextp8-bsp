@@ -108,7 +108,8 @@ int _esp_read_line(char *buffer, size_t buf_size, unsigned timeout_us)
             errno = ETIMEDOUT;
             return -1;
         }
-        if (_esp_read_byte(&ch, timeout_us - (unsigned)elapsed) < 0) {
+        unsigned remaining_timeout = (timeout_us > elapsed) ? (timeout_us - elapsed) : 0;
+        if (_esp_read_byte(&ch, remaining_timeout) < 0) {
             buffer[pos] = '\0';
             return -1;
         }

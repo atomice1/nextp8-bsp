@@ -83,8 +83,8 @@ void _show_message(const char *format, ...)
   va_list ap;
   va_start(ap, format);
   char message[256];
-  va_end(ap);
   vsnprintf(message, sizeof(message), format, ap);
+  va_end(ap);
   _show_message_common(MESSAGE, message);
 }
 #endif

@@ -24,10 +24,10 @@ void _uart_write(const char *buf, size_t count)
     {
       char c = *src++;
       MMIO_REG8(_UART_DATA) = c;
-      while ((MMIO_REG8(_UART_CTRL) & 2) == 0) { }
-      MMIO_REG8(_UART_CTRL) = 1;
-      MMIO_REG8(_UART_CTRL) = 1;
-      MMIO_REG8(_UART_CTRL) = 1;
+      while ((MMIO_REG8(_UART_CTRL) & _UART_STATUS_READY) == 0) { }
+      MMIO_REG8(_UART_CTRL) = _UART_CTRL_WRITE_STROBE;
+      MMIO_REG8(_UART_CTRL) = _UART_CTRL_WRITE_STROBE;
+      MMIO_REG8(_UART_CTRL) = _UART_CTRL_WRITE_STROBE;
       MMIO_REG8(_UART_CTRL) = 0;
     }
  }

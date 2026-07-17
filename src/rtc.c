@@ -128,10 +128,19 @@ int _read_rtc(unsigned *date, unsigned *month, unsigned *year,
 
     /* Capture hours */
     data = MMIO_REG8(_I2C_DATA);
-    if (data & (1 << 6))
-        *hours = ((data & 0x0F) + 10 * ((data >> 4) & 0x01)) + ((data & (1 << 5)) ? 12 : 0);
-    else
-        *hours = (data & 0x0F) + 10 * ((data >> 4) & 0x03);
+    if (data & (1 << 6)) {
+        /* 12-hour format */
+        int pm = (data & (1 << 5)) != 0;
+        int hour12 = (data & 0x0F) + ((data >> 4) & 0x01) * 10;
+        if (pm) {
+            *hours = (hour12 == 12) ? 12 : hour12 + 12;
+        } else {
+            *hours = (hour12 == 12) ? 0 : hour12;
+        }
+    } else {
+        /* 24-hour format */
+        *hours = (data & 0x0F) + ((data >> 4) & 0x03) * 10;
+    }
 
     /* Wait for busy to rise (wday byte ready) */
     ret = wait_i2c_busy_rise();
