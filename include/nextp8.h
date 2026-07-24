@@ -209,6 +209,7 @@ extern struct _config_data *_config_data;
 #ifndef ROM
 extern struct _loader_data *_loader_data;
 #endif
+extern int _ignore_sdcard_errors;
 
 extern void _set_postcode(int postcode);
 extern void _clear_screen(int colour_index);

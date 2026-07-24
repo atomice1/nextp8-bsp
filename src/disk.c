@@ -25,6 +25,8 @@
 #include "nextp8.h"
 #include "sdblockdevice.h"
 
+int _ignore_sdcard_errors;
+
 #ifdef ROM
 extern void _rom_fatal_error(const char *fn, int res);
 #endif
@@ -110,29 +112,29 @@ DSTATUS disk_initialize (
             }
 #endif
         } else {
-            const char *error_message = NULL;
-            switch (res) {
-            case SD_BLOCK_DEVICE_ERROR_NO_DEVICE:
-                error_message = "SD card is missing or not connected.";
-                break;
-            case SD_BLOCK_DEVICE_ERROR_UNUSABLE:
-                error_message = "SD Card is unusable.";
-                break;
-            case SD_BLOCK_DEVICE_ERROR_NO_RESPONSE:
-                error_message =  "No response from SD card.";
-                break;
-            default:
-                error_message = "unknown SD card error";
+            if (!_ignore_sdcard_errors) {
+                const char *error_message = NULL;
+                switch (res) {
+                case SD_BLOCK_DEVICE_ERROR:
+                case SD_BLOCK_DEVICE_ERROR_NO_DEVICE:
+                    error_message = "SD card is missing or not connected.";
+                    break;
+                case SD_BLOCK_DEVICE_ERROR_UNUSABLE:
+                    error_message = "SD Card is unusable.";
+                    break;
+                case SD_BLOCK_DEVICE_ERROR_NO_RESPONSE:
+                    error_message =  "No response from SD card.";
+                    break;
+                default:
+                    error_message = "unknown SD card error";
 #ifdef ROM
-                _rom_fatal_error("disk_initialize", res);
+                    _rom_fatal_error("disk_initialize", res);
 #endif
-                break;
-            }
-            if (pdrv == 0)
-                _fatal_error(error_message);
-            else
+                    break;
+                }
                 _recoverable_error(error_message);
-            return STA_NOINIT;
+                return STA_NOINIT;
+            }
         }
     }
     return RES_OK;

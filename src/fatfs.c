@@ -79,7 +79,7 @@ void _init_fatfs(void)
   fatfs_initialized = 1;
   for (int i=0;i<2;++i) {
     res = f_mount(&fs[i], volume_names[i], 1-i);
-    if (res != FR_OK)
+    if (res != FR_OK && !_ignore_sdcard_errors)
       {
         if (res == FR_NO_FILESYSTEM)
           {
@@ -371,16 +371,19 @@ int _fatfs_open(struct _file *file, const char *filename, int flags, mode_t mode
   res = f_open(&file->fil, filename, f_mode);
   if (res != FR_OK)
     {
-      if (res == FR_NO_FILESYSTEM)
+      if (!_ignore_sdcard_errors)
         {
-          _fatal_error("No FAT32 filesystem on SD card.");
-        }
-      else
-        {
+          if (res == FR_NO_FILESYSTEM)
+            {
+              _recoverable_error("No FAT32 filesystem on SD card.");
+            }
+          else
+            {
 #ifdef ROM
-          if (res != FR_NO_FILE && res != FR_NO_PATH)
-            _rom_fatal_error("_fatfs_open", res);
+              if (res != FR_NO_FILE && res != FR_NO_PATH)
+                _rom_fatal_error("_fatfs_open", res);
 #endif
+            }
         }
       errno = fresult2errno(res);
       return -1;
