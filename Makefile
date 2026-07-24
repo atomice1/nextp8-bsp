@@ -32,6 +32,5 @@ lib-rom:
 clean:
 	if [ -d build/ram ]; then cd build/ram && $(MAKE) -f ../../src/Makefile clean; fi
 	if [ -d build/rom ]; then cd build/rom && $(MAKE) -f ../../src/Makefile clean; fi
-	rm -f lib/libnextp8.a
-	rm -f lib/libnextp8-rom.a
-
+	rm -f lib/libnextp8.a lib/crt0-ram.o
+	rm -f lib/libnextp8-rom.a lib/crt0-rom.o
