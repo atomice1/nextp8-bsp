@@ -132,18 +132,10 @@ int _esp_read_line(char *buffer, size_t buf_size, unsigned timeout_us)
     return -1;
 }
 
-/* Send AT command and wait for expected response */
-int _esp_send_at_command(const char *cmd, const char *expected_response, unsigned timeout_us)
+/* Wait for an expected response */
+int _esp_wait_for_response(const char *expected_response, unsigned timeout_us)
 {
     char response[AT_RESPONSE_BUF_SIZE];
-
-    /* Send command */
-    if (_esp_write_string(cmd) < 0) {
-        return -1;
-    }
-    if (_esp_write_string("\r\n") < 0) {
-        return -1;
-    }
 
     /* Read response lines until we find the expected response or timeout */
     uint64_t start_time = MMIO_REG64(_UTIMER_1MHZ);
@@ -170,6 +162,22 @@ int _esp_send_at_command(const char *cmd, const char *expected_response, unsigne
             return -1;
         }
     }
+
+    return 0;
+}
+
+/* Send AT command and wait for expected response */
+int _esp_send_at_command(const char *cmd, const char *expected_response, unsigned timeout_us)
+{
+    /* Send command */
+    if (_esp_write_string(cmd) < 0) {
+        return -1;
+    }
+    if (_esp_write_string("\r\n") < 0) {
+        return -1;
+    }
+
+    return _esp_wait_for_response(expected_response, timeout_us);
 }
 
 /* Wait for a specific prompt from ESP8266 */

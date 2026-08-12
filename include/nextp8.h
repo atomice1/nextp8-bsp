@@ -221,6 +221,7 @@ extern int _esp_read_byte(unsigned char *byte, unsigned timeout_us);
 extern int _esp_read_line(char *buffer, size_t buf_size, unsigned timeout_us);
 extern int _esp_send_at_command(const char *cmd, const char *expected_response, unsigned timeout_us);
 extern int _esp_wait_for_prompt(const char *prompt, unsigned timeout_us);
+extern int _esp_wait_for_response(const char *expected_response, unsigned timeout_us);
 extern int _esp_write_byte(unsigned char byte);
 extern int _esp_write_string(const char *str);
 extern int _esp_init(void);
