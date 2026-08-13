@@ -27,6 +27,12 @@ enum message_type {
 
 static void _show_message_common(enum message_type message_type, const char *message)
 {
+  _uart_write(message, strlen(message));
+  _uart_write("\n", 1);
+
+  if (_config_data && _config_data->exit_action == 1)
+    return;
+
   int vfront = *(uint8_t *)_VFRONT;
   int vback = 1 - vfront;
   _clear_screen(message_type == MESSAGE ? _DARK_BLUE : _RED);
@@ -74,7 +80,18 @@ void __attribute__ ((noreturn)) _fatal_error(const char *format, ...)
   va_end(ap);
 #endif
   _show_message_common(FATAL_ERROR, message);
-  _warm_reset();
+  if (_config_data && _config_data->exit_action == 1)
+    {
+      _shutdown();
+    }
+  else
+    {
+#ifdef ROM
+      _warm_reset();
+#else
+      _restart();
+#endif
+    }
 }
 
 #ifndef ROM
