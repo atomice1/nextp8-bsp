@@ -45,7 +45,7 @@ time_t time (time_t *t)
   uint64_t microseconds = MMIO_REG64(_UTIMER_1MHZ) - _boot_time_monotonic_us;
   microseconds += _boot_time_realtime_s * UINT64_C(1000000);
   time_t seconds = microseconds / UINT64_C(1000000);
-  if (seconds)
+  if (t)
     *t = seconds;
   return seconds;
 }
